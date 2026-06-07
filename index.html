@@ -106,13 +106,13 @@
 
 </style>
 
-  <!-- PWA installabile -->
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="theme-color" content="#50c8cf">
-  <meta name="mobile-web-app-capable" content="yes">
+  <!-- PWA: installabile da telefono e pubblicabile su GitHub Pages -->
+  <meta name="theme-color" content="#1689aa">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Garda Lure">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
 
@@ -133,7 +133,7 @@
     <div>
       <h1 id="appTitle">Garda Lure Simulator Ultimate</h1>
       <div class="subtitle">Modello integrato da riva per esche, spot e batimetria stimata del Lago di Garda. Seleziona specie, taglia, zona e struttura: il simulatore propone profondita', distanza e localita' coerenti con morfologia, stagione, luce e vento.</div>
-      <div class="pillrow"><span class="pill" id="lureCountPill">catalogo caricato</span><span class="pill">Rapala multi-variante</span><span class="pill">Habitat automatico</span><span class="pill">Top ranking + dove andare</span><span class="pill">PWA installabile, dati locali</span></div>
+      <div class="pillrow"><span class="pill" id="lureCountPill">catalogo caricato</span><span class="pill">Rapala multi-variante</span><span class="pill">Habitat automatico</span><span class="pill">Top ranking + dove andare</span><span class="pill">offline, nessun dato inviato</span></div>
     </div>
     <div class="top-actions"><button class="lang-chip" type="button" data-open-mode="ranking">Esche</button><button class="lang-chip" type="button" data-open-mode="map">Mappa</button></div>
   </div>
@@ -2692,16 +2692,176 @@ init();
 /* ULTIMATE_HD_MAP_SCREENSHOT_V6_END */
 </script>
 
-<script id="pwaServiceWorkerRegistration">
+<script id="garda-pwa-bootstrap">
 (function(){
-  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
-    window.addEventListener("load", function(){
-      navigator.serviceWorker.register("./sw.js").catch(function(err){
-        console.warn("Service worker non registrato", err);
-      });
+  if (!("serviceWorker" in navigator)) return;
+
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(function(err){
+      console.warn("Service worker non registrato:", err);
     });
+  });
+
+  var deferredPrompt = null;
+  function makeInstallButton(){
+    if (document.getElementById("pwaInstallBtn")) return document.getElementById("pwaInstallBtn");
+    var btn = document.createElement("button");
+    btn.id = "pwaInstallBtn";
+    btn.type = "button";
+    btn.textContent = "Installa app";
+    btn.setAttribute("aria-label", "Installa Garda Lure Simulator come app");
+    btn.style.cssText = "display:none;position:fixed;right:16px;bottom:16px;z-index:3000;border:0;border-radius:999px;padding:11px 15px;font-weight:900;color:#053948;background:linear-gradient(135deg,#fbfff7,#8df0ff 45%,#80e186);box-shadow:0 12px 32px rgba(26,142,159,.25),inset 0 1px 0 rgba(255,255,255,.9);";
+    btn.addEventListener("click", async function(){
+      if (!deferredPrompt) return;
+      btn.style.display = "none";
+      deferredPrompt.prompt();
+      try { await deferredPrompt.userChoice; } catch(e) {}
+      deferredPrompt = null;
+    });
+    document.body.appendChild(btn);
+    return btn;
   }
+
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    makeInstallButton().style.display = "block";
+  });
+
+  window.addEventListener("appinstalled", function(){
+    var btn = document.getElementById("pwaInstallBtn");
+    if (btn) btn.style.display = "none";
+    deferredPrompt = null;
+  });
 })();
 </script>
+
+<script id="garda-gps-weather-live-v1">
+(function(){
+  "use strict";
+  function $(id){return document.getElementById(id);}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+  function esc(s){return String(s||"").replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function distKm(a,b,c,d){
+    var R=6371, dLat=(c-a)*Math.PI/180, dLon=(d-b)*Math.PI/180;
+    var x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(x));
+  }
+  function nearestWindDir(deg){
+    var dirs=[0,45,90,135,180,225,270,315];
+    var best=0,bd=999;
+    dirs.forEach(function(d){var x=Math.abs(((deg-d+540)%360)-180); if(x<bd){bd=x;best=d;}});
+    return String(best);
+  }
+  function dateMonth(){
+    var d=$('date')&&$('date').value?new Date($('date').value):new Date();
+    if(isNaN(d.getTime())) d=new Date();
+    return d.getMonth()+1;
+  }
+  function estimateLakeWaterTemp(air, lat){
+    var m=dateMonth();
+    var seasonal={1:7.5,2:7.0,3:8.5,4:12,5:16,6:20.5,7:23.5,8:24,9:21,10:17,11:13,12:9.5}[m]||16;
+    var northAdj=lat>45.74?-1.2:lat<45.55?0.7:0;
+    return clamp(seasonal*0.72 + air*0.28 + northAdj,4,29);
+  }
+  var GARDA_GPS_POINTS=[
+    {key:'riva',name:'Riva del Garda',lat:45.889,lon:10.844},{key:'torbole_sarca',name:'Torbole / Sarca',lat:45.869,lon:10.876},{key:'limone',name:'Limone',lat:45.814,lon:10.793},{key:'malcesine',name:'Malcesine',lat:45.764,lon:10.811},{key:'gargnano',name:'Gargnano',lat:45.690,lon:10.662},{key:'torri',name:'Torri del Benaco',lat:45.609,lon:10.686},{key:'garda',name:'Garda',lat:45.578,lon:10.707},{key:'bardolino',name:'Bardolino',lat:45.548,lon:10.720},{key:'lazise',name:'Lazise',lat:45.505,lon:10.733},{key:'peschiera',name:'Peschiera',lat:45.439,lon:10.689},{key:'sirmione_punta',name:'Sirmione',lat:45.492,lon:10.609},{key:'desenzano',name:'Desenzano',lat:45.471,lon:10.539},{key:'manerba_rocca',name:'Manerba / Rocca',lat:45.557,lon:10.553},{key:'salo',name:'Salo',lat:45.607,lon:10.522},{key:'gardone',name:'Gardone',lat:45.621,lon:10.563}
+  ];
+  function nearestGardaPoint(lat,lon){
+    var best=null; GARDA_GPS_POINTS.forEach(function(p){var d=distKm(lat,lon,p.lat,p.lon); if(!best||d<best.d)best=Object.assign({d:d},p);});
+    return best;
+  }
+  function setInput(id,val,ev){
+    var el=$(id); if(!el) return false;
+    el.value=String(val);
+    el.dispatchEvent(new Event(ev||'input',{bubbles:true}));
+    if(ev!=='change') el.dispatchEvent(new Event('change',{bubbles:true}));
+    return true;
+  }
+  function status(msg,type){
+    var box=$('gpsWeatherStatus'); if(!box) return;
+    var color=type==='err'?'#8b2e2e':type==='ok'?'#0c6849':'#52747c';
+    box.style.color=color; box.innerHTML=msg;
+  }
+  function makePanel(){
+    if($('gpsWeatherBtn')) return;
+    var controls=document.querySelector('aside.controls'); if(!controls) return;
+    var first=controls.querySelector('.section');
+    var div=document.createElement('div');
+    div.className='section';
+    div.id='gpsWeatherSection';
+    div.innerHTML='<h2>GPS + meteo live</h2><div class="note">Usa posizione e dati meteo online per aggiornare lo scenario. La posizione resta nel browser e viene usata solo per chiamare il meteo.</div><div class="btnrow"><button id="gpsWeatherBtn" type="button">Usa GPS + meteo live</button><button id="gpsNearestBtn" type="button" class="secondary">Solo trova zona</button></div><div id="gpsWeatherStatus" class="tiny" style="margin-top:8px">Pronto. Funziona solo online in HTTPS.</div>';
+    controls.insertBefore(div, first ? first.nextSibling : controls.firstChild);
+    $('gpsWeatherBtn').addEventListener('click',function(){useGpsWeather(true);});
+    $('gpsNearestBtn').addEventListener('click',function(){useGpsWeather(false);});
+    var pills=document.querySelector('.pillrow');
+    if(pills&&!document.getElementById('liveWeatherPill')){
+      var sp=document.createElement('span'); sp.className='pill'; sp.id='liveWeatherPill'; sp.textContent='GPS + meteo live opzionale'; pills.appendChild(sp);
+    }
+  }
+  function getPosition(){
+    return new Promise(function(resolve,reject){
+      if(!navigator.geolocation) return reject(new Error('Geolocalizzazione non supportata da questo browser.'));
+      navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:12000,maximumAge:120000});
+    });
+  }
+  async function fetchWeather(lat,lon){
+    var params='latitude='+encodeURIComponent(lat.toFixed(5))+'&longitude='+encodeURIComponent(lon.toFixed(5))+'&current=temperature_2m,cloud_cover,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=ms&timezone=auto';
+    var url='https://api.open-meteo.com/v1/forecast?'+params;
+    var r=await fetch(url,{cache:'no-store'});
+    if(!r.ok) throw new Error('Meteo non disponibile ('+r.status+').');
+    return await r.json();
+  }
+  async function useGpsWeather(withWeather){
+    try{
+      status('Richiesta posizione in corso...', 'wait');
+      var pos=await getPosition();
+      var lat=pos.coords.latitude, lon=pos.coords.longitude;
+      var near=nearestGardaPoint(lat,lon);
+      if(near){
+        setInput('location',near.key,'change');
+        if($('shoreSegment')){setInput('shoreSegment','auto','input');}
+      }
+      var extra='';
+      if(near&&near.d>8){extra=' <strong>Nota:</strong> sei a circa '+near.d.toFixed(1)+' km dal punto Garda piu vicino.';}
+      if(!withWeather){
+        if(typeof runSimulation==='function') runSimulation();
+        status('Zona impostata: <strong>'+esc(near?near.name:'punto vicino')+'</strong>.'+extra,'ok');
+        return;
+      }
+      status('Posizione trovata. Scarico meteo live...', 'wait');
+      var data=await fetchWeather(lat,lon);
+      var c=data.current||{};
+      if(typeof c.temperature_2m==='number'){
+        setInput('airTemp',Math.round(c.temperature_2m*2)/2,'input');
+        setInput('waterTemp',Math.round(estimateLakeWaterTemp(c.temperature_2m,lat)*2)/2,'input');
+      }
+      if(typeof c.cloud_cover==='number') setInput('cloud',Math.round(clamp(c.cloud_cover,0,100)/5)*5,'input');
+      if(typeof c.pressure_msl==='number') setInput('pressure',Math.round(clamp(c.pressure_msl,985,1038)),'input');
+      if(typeof c.wind_speed_10m==='number') setInput('windSpeed',Math.round(clamp(c.wind_speed_10m,0,24)*2)/2,'input');
+      if(typeof c.wind_direction_10m==='number') setInput('windDir',nearestWindDir(c.wind_direction_10m),'change');
+      var gust=typeof c.wind_gusts_10m==='number'?c.wind_gusts_10m:(c.wind_speed_10m||0);
+      var wave=clamp((c.wind_speed_10m||0)/5.8 + Math.max(0,gust-(c.wind_speed_10m||0))/10,0,4);
+      setInput('waves',Math.round(wave*10)/10,'input');
+      if(typeof runSimulation==='function') runSimulation();
+      var bits=[];
+      if(near) bits.push('zona <strong>'+esc(near.name)+'</strong>');
+      if(typeof c.temperature_2m==='number') bits.push('aria '+c.temperature_2m.toFixed(1)+' C');
+      if(typeof c.wind_speed_10m==='number') bits.push('vento '+c.wind_speed_10m.toFixed(1)+' m/s');
+      if(typeof c.pressure_msl==='number') bits.push('pressione '+Math.round(c.pressure_msl)+' hPa');
+      status('Live aggiornato: '+bits.join(' · ')+'.'+extra,'ok');
+    }catch(e){
+      var msg=e&&e.message?e.message:String(e);
+      if(e&&e.code===1) msg='Permesso posizione negato. Abilita GPS/posizione per questo sito.';
+      if(e&&e.code===2) msg='Posizione non disponibile. Riprova con GPS attivo.';
+      if(e&&e.code===3) msg='Timeout GPS. Riprova all\'aperto o con segnale migliore.';
+      status('Errore: '+esc(msg),'err');
+    }
+  }
+  window.GardaLiveWeather={useGpsWeather:useGpsWeather};
+  window.addEventListener('load',function(){setTimeout(makePanel,350);});
+})();
+</script>
+
 </body>
 </html>

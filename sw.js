@@ -1,5 +1,7 @@
-const CACHE_NAME = "garda-lure-pwa-v1";
-const CORE_ASSETS = [
+/* Garda Lure Simulator - PWA service worker
+   Aggiornamenti facili: il file HTML usa network-first, quindi quando carichi una nuova versione su GitHub Pages l'app prova sempre a prendere la versione online piu' recente. */
+const CACHE_NAME = "garda-lure-pwa-v2-gps-gps";
+const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
@@ -7,58 +9,57 @@ const CORE_ASSETS = [
   "./icons/icon-512.png"
 ];
 
-self.addEventListener("install", function(event) {
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(CORE_ASSETS);
-    }).then(function() {
-      return self.skipWaiting();
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener("activate", function(event) {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(function(keys) {
-      return Promise.all(keys.map(function(key) {
-        if (key !== CACHE_NAME) return caches.delete(key);
-      }));
-    }).then(function() {
-      return self.clients.claim();
-    })
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener("fetch", function(event) {
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
+});
+
+self.addEventListener("fetch", event => {
   const request = event.request;
   if (request.method !== "GET") return;
 
+  const url = new URL(request.url);
+
+  // Pagine HTML: network-first. Cosi' gli update pubblicati online arrivano subito.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).then(function(response) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(function(cache) {
-          cache.put("./index.html", copy);
-        });
-        return response;
-      }).catch(function() {
-        return caches.match("./index.html");
-      })
+      fetch(request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy));
+          return response;
+        })
+        .catch(() => caches.match(request).then(cached => cached || caches.match("./index.html")))
     );
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then(function(cached) {
-      if (cached) return cached;
-      return fetch(request).then(function(response) {
-        if (!response || response.status !== 200 || response.type !== "basic") return response;
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(function(cache) {
-          cache.put(request, copy);
-        });
-        return response;
-      });
-    })
-  );
+  // File locali: cache-first con aggiornamento in background.
+  if (url.origin === location.origin) {
+    event.respondWith(
+      caches.match(request).then(cached => {
+        const update = fetch(request).then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          return response;
+        }).catch(() => cached);
+        return cached || update;
+      })
+    );
+  }
 });
