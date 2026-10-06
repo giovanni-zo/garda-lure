@@ -1,0 +1,19 @@
+.garda-view-tabs{display:flex;gap:6px;padding:8px;background:rgba(255,255,255,.65);border-bottom:1px solid rgba(7,75,91,.12)}
+.garda-view-tabs button,.garda-3d-tools button{width:auto;margin:0;padding:9px 13px;border:1px solid rgba(7,75,91,.15);border-radius:12px;background:#f5fcf9;color:#174b58;font:700 12px system-ui;cursor:pointer}
+.garda-view-tabs button[aria-selected="true"]{background:#0b5264;color:white;border-color:#0b5264}
+.garda-view-tabs button:focus-visible,.garda-3d-tools button:focus-visible,.garda-3d-tools a:focus-visible{outline:3px solid #f79d44;outline-offset:2px}
+.garda-3d-stage{position:relative;background:radial-gradient(ellipse at 50% 42%,#f7faf3,#dcece8);min-height:540px}
+.garda-3d-stage[hidden],#bathymetryCanvas[hidden],#bathymetryPanel .map-controls[hidden]{display:none!important}
+#gardaLakeModel{display:block;width:100%;height:clamp(540px,78vh,850px);--progress-bar-color:#087083;--poster-color:transparent;touch-action:pan-y}
+.garda-3d-caption{position:absolute;left:16px;top:16px;pointer-events:none;max-width:75%;color:#214d56}
+.garda-3d-caption strong{display:block;font-size:16px;letter-spacing:-.03em}
+.garda-3d-caption span{display:block;font-size:11px;margin-top:5px}
+.garda-3d-tools{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:12px 14px;background:rgba(255,255,255,.72)}
+.garda-3d-tools select{width:auto;max-width:180px;margin:0;font-size:12px;padding:9px;border-radius:12px}
+.garda-3d-tools a{font-size:12px;font-weight:750;color:#0b5264;margin-left:auto}
+.garda-3d-scale{display:flex;flex-wrap:wrap;gap:9px;align-items:center;padding:9px 14px;color:#3f646b;font-size:11px;background:rgba(255,255,255,.5)}
+.garda-3d-scale i{width:110px;height:8px;display:inline-block;border-radius:4px;background:linear-gradient(90deg,#f6a758,#eee27d,#58cdae,#31adce,#236a9e,#123b61)}
+.garda-3d-note{padding:8px 14px 12px;font-size:11px;line-height:1.5;color:#517179}
+.garda-3d-status{position:absolute;left:16px;bottom:20px;background:#fafff8e8;border-radius:12px;padding:10px 13px;font-size:12px;color:#305b63;max-width:calc(100% - 32px)}
+.garda-hotspot{width:17px;height:17px;min-height:0;padding:0;border:3px solid white;border-radius:50%;background:#ff9b39;box-shadow:0 0 0 2px #155467;pointer-events:none}
+@media(max-width:620px){#gardaLakeModel{height:600px}.garda-3d-caption{left:12px;top:12px}.garda-3d-tools a{margin-left:0}.garda-3d-stage{min-height:600px}}

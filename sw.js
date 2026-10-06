@@ -1,12 +1,17 @@
 /* Garda Lure Simulator - PWA service worker
    Aggiornamenti facili: il file HTML usa network-first, quindi quando carichi una nuova versione su GitHub Pages l'app prova sempre a prendere la versione online piu' recente. */
-const CACHE_NAME = "garda-lure-pwa-v2-gps-gps";
+const CACHE_NAME = "garda-lure-pwa-v3-higgsfield-3d";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./assets/garda-3d.css",
+  "./assets/garda-3d.js",
+  "./assets/lake-garda.glb",
+  "./assets/lake-garda-preview.png",
+  "./vendor/model-viewer.min.js",
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
 self.addEventListener("install", event => {

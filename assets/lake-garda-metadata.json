@@ -1,0 +1,24 @@
+{
+  "project_url": "https://higgsfield.ai/3d-jutsu/55e2ca63-1933-4585-83e5-45fae99607c3",
+  "higgsfield_revision": 2,
+  "created": "2026-10-06",
+  "reference_images": [
+    "IMG_9074.png",
+    "IMG_9075.png",
+    "IMG_9076.png"
+  ],
+  "geometry_source": "Existing Garda Lure HD shoreline and estimated bathymetry model; screenshot-guided visual representation",
+  "surveyed_depths": false,
+  "vertical_exaggeration": 12,
+  "horizontal_model_scale": "1:1000",
+  "lakebed_vertices": 10984,
+  "lakebed_triangles": 20472,
+  "depth_range_m": [
+    0,
+    345.8
+  ],
+  "longitude_origin": 10.69,
+  "latitude_origin": 45.66,
+  "gltf_axes": "x=east, y=height, z=south",
+  "viewer": "Google model-viewer 4.1.0"
+}
