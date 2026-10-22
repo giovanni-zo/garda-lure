@@ -1,50 +1,68 @@
-# Garda Lure Simulator Ultimate - PWA
+# Garda Lure · versione 6.6
 
-## Mappa 3D del Garda — Higgsfield
+Interfaccia in italiano per scegliere una tecnica di pesca sul Garda.
 
-La sezione Mappa apre il fondale 3D. Trascina per ruotare, usa rotella/pinch per zoomare, scegli una zona o la vista dall'alto. Toccare il fondale seleziona uno spot e aggiorna le informazioni di pesca. Il pulsante **Mappa 2D · pesca** riapre la mappa originale e i suoi filtri.
+- 24 tipi di esca, senza marche, con 72 profili di misura/peso.
+- Varianti floating, suspending, sinking e deep distinte.
+- 19 illustrazioni low poly di esche (riutilizzate per varianti della stessa
+  sagoma) e 7 pesci. In acqua limpida i colori restano naturali; con acqua
+  velata diventano oro/rame; in acqua torbida chartreuse.
+- Flusso: pesce, zona/struttura, giorno/ora, acqua e potenza della canna.
+  Montaggio e piombatura sono automatici; condizioni e quota si possono regolare.
+- Consigli, zone, catalogo per tipi, scheda di dettaglio, mappa 2D e 3D.
 
-Il modello è stato creato con Higgsfield 3D Jutsu usando la geometria e il modello batimetrico stimato di Garda Lure. Gli screenshot IMG_9074, IMG_9075 e IMG_9076 guidano la rappresentazione del fondale, i colori costieri e le isobate. Non contengono un rilievo completo: le quote restano stime, non profondità misurate. Il rilievo verticale è amplificato 12 volte rispetto alla scala orizzontale.
+## Aprire o pubblicare
 
-- Progetto modificabile: https://higgsfield.ai/3d-jutsu/55e2ca63-1933-4585-83e5-45fae99607c3
-- Modello portabile: `assets/lake-garda.glb` (circa 3 MB, 20.472 triangoli per il fondale).
-- Anteprima: `assets/lake-garda-preview.png`.
-- La pagina PWA, il visualizzatore e il modello sono inclusi nella cache offline dopo il primo caricamento online.
-- Visualizzatore: Google model-viewer 4.1.0, Apache 2.0; licenza in `vendor/model-viewer-LICENSE.txt`.
+Dalla cartella principale: `python3 -m http.server 8765 --bind 127.0.0.1`.
+Aprire `http://127.0.0.1:8765/garda_lure_pwa_gps_meteo_v2/`.
+Per pubblicare, caricare l'intera cartella su un hosting statico HTTPS.
+La copia `garda_lure_pwa_gps_meteo_v2 2` è sincronizzata. I vecchi HTML e ZIP
+standalone sono archivi storici, non questa versione.
 
-Per pubblicare questa versione, carica **tutta la cartella**, incluse `assets/` e `vendor/`. L'HTML richiede un server HTTP/HTTPS per la vista 3D (ad esempio GitHub Pages); un'apertura diretta con `file://` può bloccare il caricamento del modello. Anche `garda_lure_simulator_hd_map_jdm_v6.html` usa questi file condivisi nella cartella PWA.
+## Immagini
 
-Questa cartella e' pronta per GitHub Pages.
+Gli asset finali si trovano in `assets/illustrations/`. Sono PNG con trasparenza,
+generati con lo strumento integrato ImageGen. `assets/illustrations/prompts.json`
+registra soggetti, stile e file. Le varianti di colore sono applicate nel sito,
+senza duplicare i file delle immagini. Gli scarti di stile precedenti alla
+richiesta low poly non sono inclusi.
 
-## File inclusi
+## Mappe
 
-- `index.html`: simulatore completo.
-- `manifest.webmanifest`: rende l'app installabile.
-- `sw.js`: service worker per cache/offline e aggiornamenti semplici.
-- `icon-192.png`, `icon-512.png`: icone app.
-- `.nojekyll`: evita elaborazioni inutili di GitHub Pages.
+Entrambe le viste usano un unico perimetro geografico e un'unica superficie:
 
-## Pubblicazione gratis con GitHub Pages
+- Costa: OpenStreetMap, relazione 8569, scaricata il 22 ottobre 2026.
+  Fonte: https://www.openstreetmap.org/relation/8569
+- Dati originali: `tools/garda-osm-source.json`; perimetro portabile:
+  `assets/geodata/lake-garda-coast.geojson`.
+- Attribuzione: © OpenStreetMap contributors, ODbL 1.0.
+  https://www.openstreetmap.org/copyright
+- `assets/garda-lake-data.js`: costa, isole e griglia di profondità della vista 2D.
+- `assets/lake-garda-v6.glb`: lo stesso fondale in 3D, con le stesse isobate.
+- `assets/lake-garda-v6-metadata.json`: scala, origine geografica e provenienza.
+- La penisola di Sirmione è parte della costa, non un'isola o un foro artificiale.
+- Le profondità sono una superficie schematica costruita seguendo le forme
+  delle tre immagini fornite (IMG_9074/75/76). Non sono dati C-MAP estratti o un
+  rilievo batimetrico misurato. Non viene riprodotta la carta proprietaria.
+- Rilievo verticale amplificato ×8. Le coordinate 3D sono riferite alla stessa
+  origine e scala in km della vista 2D.
 
-1. Crea un account GitHub.
-2. Crea un nuovo repository pubblico, per esempio `garda-lure-simulator`.
-3. Carica tutti i file di questa cartella nella root del repository.
-4. Vai in `Settings` -> `Pages`.
-5. In `Build and deployment`, scegli `Deploy from a branch`.
-6. Scegli branch `main` e cartella `/ (root)`, poi `Save`.
-7. Dopo poco la app sara' online a un indirizzo simile a:
-   `https://TUO-USERNAME.github.io/garda-lure-simulator/`
+Ricostruzione: `python3 tools/build_lake.py` (richiede NumPy e Matplotlib).
+Il viewer model-viewer locale mantiene la sua licenza Apache 2.0 in `vendor/`.
 
-## Aggiornare l'app
+## Logica e verifiche
 
-Per aggiornare logica, esche o mappa:
+`assets/lure-types.js` contiene la tassonomia generica; non c'è più il database
+commerciale. `assets/recommendation-engine.js` gestisce montaggi, profondità,
+casting, vegetazione e ordinamento. `assets/simple-fishing.js` gestisce il nuovo
+flusso visivo; `assets/garda-map.js` gestisce entrambe le viste geografiche.
 
-1. Modifica `index.html`.
-2. Carica il nuovo `index.html` nel repository.
-3. Premi `Commit changes`.
-4. Riapri l'app: il service worker usa network-first per la pagina HTML, quindi prova sempre a prendere la versione online piu' recente.
+- `node tests/selector.mjs`: 35 controlli su coerenza di montaggi, profondità,
+  vincoli canna, alternative e punteggi.
+- `python3 tests/geography.py`: sagoma, Sirmione, isole, griglia e GLB condiviso.
+- Controllata in browser la selezione specie, il catalogo, i dettagli, il cambio
+  cromatico e le viste 2D/3D. I controlli non misurano l'efficacia delle catture.
 
-Per aggiornamenti grossi puoi anche cambiare `CACHE_NAME` dentro `sw.js`, per esempio da `garda-lure-pwa-v1` a `garda-lure-pwa-v2`.
-
-## Aggiornamento GPS + meteo live
-Questa versione aggiunge il bottone **Usa GPS + meteo live**. Funziona solo online in HTTPS, quindi su GitHub Pages va bene. Il browser chiede il permesso posizione, imposta la zona del Garda più vicina e aggiorna temperatura aria, vento, pressione, nuvolosità, onda stimata e temperatura acqua stimata.
+GPS/meteo usa Open-Meteo su richiesta. Le coordinate sono inviate al servizio;
+acqua e trasparenza restano condizioni inserite o stagionali. Gli asset visitati
+vengono conservati offline; il nucleo dell'app e il modello sono precache.

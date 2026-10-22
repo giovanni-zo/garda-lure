@@ -1,0 +1,25 @@
+{
+  "bounds": [
+    10.5109103,
+    45.4403261,
+    10.8768919,
+    45.8848213
+  ],
+  "shorelineVertices": 1613,
+  "islands": 28,
+  "meshVertices": 16667,
+  "triangles": 30274,
+  "verticalExaggeration": 8,
+  "origin": [
+    10.69,
+    45.66
+  ],
+  "scale": [
+    77.80319141452006,
+    111.32
+  ],
+  "depths": "schematic surface, not surveyed",
+  "coastline": "https://www.openstreetmap.org/relation/8569",
+  "license": "OpenStreetMap ODbL",
+  "reference": "User-provided IMG_9074/9075/9076"
+}

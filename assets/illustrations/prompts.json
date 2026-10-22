@@ -1,0 +1,138 @@
+{
+  "tool": "Built-in ImageGen",
+  "style": "LOW POLY 3D educational fishing-thumbnail style. Angular polygon facets, flat shaded triangular surfaces, chunky matte geometry, few details. Transparent background, isolated entire subject side profile facing right, generous padding; no words, brands, logos, frames or scenery.",
+  "lurePalette": "Natural olive green and cream/silver, dark simplified metal hooks; muddy and stained water variants applied in CSS.",
+  "fishPalette": "Species-specific natural coloration.",
+  "assets": [
+    {
+      "file": "crankbait.png",
+      "subject": "crankbait",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-624ca3fb-7e16-47f1-9e55-ecdc251967fa.png"
+    },
+    {
+      "file": "minnow.png",
+      "subject": "minnow",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-3c2ae1f6-44f6-4647-b36f-67566be3d20f.png"
+    },
+    {
+      "file": "jerkbait.png",
+      "subject": "jerkbait",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-2addbf7b-aaa8-4c65-bd87-fecbbd4535c7.png"
+    },
+    {
+      "file": "soft-shad.png",
+      "subject": "soft shad",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-82156f4c-98ce-40f7-9b39-7988f2f3e6f5.png"
+    },
+    {
+      "file": "soft-jerk.png",
+      "subject": "soft jerk",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-c32c488d-708f-4cdf-805c-2e1faa754409.png"
+    },
+    {
+      "file": "worm.png",
+      "subject": "worm",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-bf82d60c-d73c-41b5-bc7b-28e03b3ecaeb.png"
+    },
+    {
+      "file": "creature.png",
+      "subject": "creature",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-f60966f2-724b-4025-b07d-e8ddbd3aee36.png"
+    },
+    {
+      "file": "spinner.png",
+      "subject": "spinner",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-8d6f9038-8925-4fea-a427-68e05907b0c5.png"
+    },
+    {
+      "file": "spinnerbait.png",
+      "subject": "spinnerbait",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-38336427-31c1-49a0-b03c-27ee9e0fa2cc.png"
+    },
+    {
+      "file": "chatterbait.png",
+      "subject": "chatterbait",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-c50e9078-dc4d-4851-8058-8e472d058ba8.png"
+    },
+    {
+      "file": "spintail.png",
+      "subject": "spintail",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-ee46fb15-9bf9-4199-a914-4fe3be51b3ff.png"
+    },
+    {
+      "file": "spoon.png",
+      "subject": "spoon",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-1e90e72d-2de3-4354-9289-259beee45e24.png"
+    },
+    {
+      "file": "metal-jig.png",
+      "subject": "metal jig",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-c3cbd0d7-8403-4805-85b2-9c11fec8c517.png"
+    },
+    {
+      "file": "blade.png",
+      "subject": "blade",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-a69a1dee-dbdd-42c9-9c5e-a4edb52c3702.png"
+    },
+    {
+      "file": "lipless.png",
+      "subject": "lipless",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-924905b4-a4e1-4ddd-875e-a0320961cf4d.png"
+    },
+    {
+      "file": "glide.png",
+      "subject": "glide",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-e696d5a1-b6bc-42a9-b2bc-effe735556d6.png"
+    },
+    {
+      "file": "jointed.png",
+      "subject": "jointed",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-57c1fd40-1a30-4595-8d27-8fa08e335487.png"
+    },
+    {
+      "file": "topwater.png",
+      "subject": "topwater",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-6bf047ad-a6ee-4f17-8371-15741ff5839d.png"
+    },
+    {
+      "file": "buzzbait.png",
+      "subject": "buzzbait",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-18460d18-6761-4a6e-bdda-4e3da26e4fe9.png"
+    },
+    {
+      "file": "fish-perch.png",
+      "subject": "fish perch",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-cd499d25-0117-40f0-aa2d-91d23796a341.png"
+    },
+    {
+      "file": "fish-bass.png",
+      "subject": "fish bass",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-04be79e4-94db-4607-b279-d293f03b28ef.png"
+    },
+    {
+      "file": "fish-chub.png",
+      "subject": "fish chub",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-ba8f3bf4-94ce-4e15-904f-f8827bd2e2fe.png"
+    },
+    {
+      "file": "fish-asp.png",
+      "subject": "fish asp",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-dad28a7a-68bc-4931-a481-220b11cd6bfa.png"
+    },
+    {
+      "file": "fish-pike.png",
+      "subject": "fish pike",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-24f7d11a-e04a-4007-8f9c-b2d3c42c8d13.png"
+    },
+    {
+      "file": "fish-zander.png",
+      "subject": "fish zander",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-df2b6b23-154b-4222-b5dc-2b2bb51c93f8.png"
+    },
+    {
+      "file": "fish-trout.png",
+      "subject": "fish trout",
+      "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-a2f892c6-848e-4c74-a5c1-d2009a548dbf.png"
+    }
+  ]
+}
