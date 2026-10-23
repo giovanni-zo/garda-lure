@@ -1,4 +1,4 @@
-# Garda Lure · versione 8.3
+# Garda Lure · versione 9.0
 
 Interfaccia in italiano per scegliere una tecnica di pesca sul Garda.
 
@@ -12,8 +12,10 @@ Interfaccia in italiano per scegliere una tecnica di pesca sul Garda.
   Il persico per il luccio è una scelta contestuale, non una regola fissa.
 - Sette montaggi per gomme: jig head, drop shot, Texas, Carolina, Ned, wacky
   e weightless. Compatibilità di forma, taglia, quota, peso montato e canna.
+  Le combinazioni gomma + montaggio competono automaticamente con le esche
+  rigide nella classifica. Nessuna selezione preventiva del montaggio.
   Ogni scheda contiene tre vignette low poly con recupero, pause e montaggio
-  adattati allo scenario; il montaggio si può cambiare nella scheda.
+  adattati allo scenario. Il filtro per tecnica serve solo a esplorare i risultati.
 - Flusso: pesce, zona/struttura, giorno/ora, acqua e potenza della canna.
   Specie e taglia sono sempre visibili. Meteo e acqua, quota, distanza, casting
   esatto, lenza e montaggio sono regolabili; montaggio e piombatura automatici
@@ -76,6 +78,9 @@ flusso visivo; `assets/garda-map.js` gestisce entrambe le viste geografiche.
   estesi su 252 scenari e su colori, taglia, meteo orario e cambio ora legale.
 - `node tests/selector.mjs`: 35 controlli su coerenza di montaggi, profondità,
   vincoli canna, alternative e punteggi.
+- `node tests/automatic-recommendations.mjs`: 28 controlli su 147 scenari e
+  21.805 combinazioni compatibili: scelta automatica, montaggi distinti,
+  peso montato, quota, canna, filtri, identità e apertura delle proposte.
 - `node tests/presentations.mjs`: 25 controlli su 672 guide: tre vignette per
   tutti i tipi e target, pause, galleggiabilità, montaggi, taglie, quota e asset.
 - `python3 tests/geography.py`: sagoma, Sirmione, isole, griglia e GLB condiviso.
@@ -93,4 +98,4 @@ Alba/tramonto usano le equazioni NOAA e il fuso Europe/Rome.
 Regole e fonti: `docs/color-evidence.md` e `docs/presentations.md`.
 Prompt e asset: `assets/illustrations/prompts.json` e `v8-prompts.json`.
 Gli asset visitati vengono conservati offline; il nucleo dell'app e il modello
-sono precache. Il service worker aggiorna gli asset con versione 8.3.
+sono precache. Il service worker aggiorna gli asset con versione 9.0.

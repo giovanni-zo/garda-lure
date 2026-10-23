@@ -1,4 +1,4 @@
-# Montaggi e recuperi contestuali · v8.3
+# Montaggi e recuperi contestuali · v9.0
 
 Le guide sono euristiche pratiche, non risultati di prove di cattura sul Garda.
 Le tre vignette condividono la stessa forma e livrea della scheda. Le geometrie
@@ -19,13 +19,28 @@ mostrano le relazioni tra gli elementi del montaggio; non sono in scala.
 - Weightless: gomma su offset senza zavorra aggiunta, fino a 1,5 m e controllo
   dipendente dal vento. Non applicato alle grandi swimbait.
 
-L’automatico sceglie Texas nelle erbe; drop shot con persico/lucioperca e acqua
-fredda a quota sufficiente; wacky sul bass in porto, calmo e basso; Carolina
-su sabbia/scalino più profondo per il bass; weightless nel basso e calmo;
-Ned su fondo pulito freddo con gomme corte; jig head negli altri casi.
-La scelta esplicita filtra i tipi e le taglie compatibili. Un montaggio fuori
-quota o non adatto resta segnalato nella scheda e la guida mostra l’alternativa
-jig head. Il peso montato conserva corpo, piombo e accessori, anche in manuale.
+L’app genera una proposta distinta per ogni combinazione compatibile di gomma,
+misura e montaggio. Confronta questi profili con hard bait, metalli e superficie
+nella stessa classifica. Il montaggio non è un input dell’utente; il filtro
+facoltativo “Esca o tecnica” permette di esplorare un tipo, senza cambiare la
+logica degli altri consigli. Nel catalogo una gomma apre la combinazione più
+adatta, mentre una tecnica apre la sua migliore proposta per lo scenario.
+
+La compatibilità fisica esclude forme/taglie non ammesse, quote fuori fascia,
+ami esposti in erba fitta, pesi fuori casting e lanci irraggiungibili. Il punteggio
+confronta target, dimensione, quota, struttura, lancio, luce/visibilità e vento.
+Per le gomme il 20% del punteggio iniziale riguarda l’idoneità della tecnica:
+Texas premiato nella vegetazione, drop shot nel freddo con persico/lucioperca,
+Ned con gomme corte su fondo pulito, wacky per bass nel basso calmo vicino ai
+pontili, Carolina su sabbia/scalino e weightless in acqua bassa con poco vento.
+Le condizioni non impongono un vincitore: canna, peso, distanza e quota possono
+far prevalere un’altra combinazione. Lo score resta un indice euristico.
+
+Di default la classifica mostra la misura e la gomma migliori per ciascun
+montaggio, senza collassare tutte le gomme in una sola riga. “Confronta tutte
+le misure” espande i profili. I dettagli mantengono la specifica proposta
+selezionata, il suo peso montato e le sue tre vignette; cambiando misura viene
+conservata la tecnica e sono disponibili solo le taglie compatibili.
 
 ## Recuperi
 

@@ -14,6 +14,7 @@ const isSoft=l=>l.cat.includes('soft');
 function compatible(l,key){const r=rigs[key];return !!r&&r.cats.includes(l.cat)&&(!r.maxLength||l.lengthCm<=r.maxLength);}
 function choose(l,inp){
  if(!isSoft(l))return null;
+ if(l.rigTechnique)return compatible(l,l.rigTechnique)?l.rigTechnique:null;
  if(!inp.rigStyle)return 'jig';
  if(inp.rigStyle&&inp.rigStyle!=='auto')return compatible(l,inp.rigStyle)?inp.rigStyle:null;
  if(inp.structure==='weed')return compatible(l,'texas')?'texas':'jig';
@@ -25,6 +26,32 @@ function choose(l,inp){
  if(cold&&['rock','sand'].includes(inp.structure)&&compatible(l,'ned')&&inp.depth<7)return 'ned';
  return 'jig';
 }
+function suitability(l,inp){
+ const key=choose(l,inp);if(!key)return 0;
+ const cold=inp.waterTemp<12,calm=inp.windSpeed<4,windy=inp.windSpeed>=6;
+ const bass=inp.target==='bass',bottomFish=['perch','zander'].includes(inp.target),pursuit=['pike','asp','trout'].includes(inp.target);
+ const clean=['rock','sand','drop'].includes(inp.structure),weeds=inp.structure==='weed';
+ let fit;
+ if(key==='jig')fit=.74+(pursuit?.10:0)+(windy?.07:0)+(inp.depth>=4?.05:0)-(cold&&bottomFish?.10:0)-(bass&&calm&&inp.depth<2?.12:0);
+ if(key==='dropshot')fit=.64+(cold&&bottomFish?.25:0)+(inp.depth>=2?.08:0)-(pursuit?.20:0)-(inp.structure==='river'?.12:0)-(weeds?.18:0)-(windy?.10:0)-(!cold&&pursuit?.10:0);
+ if(key==='texas')fit=.60+(weeds?.28:0)+(bass?.08:0)+(inp.target==='pike'?.05:0)-(inp.depth>8?.10:0)-(!weeds&&!bass?.08:0);
+ if(key==='carolina')fit=.62+(bass?.16:0)+(['sand','drop'].includes(inp.structure)?.12:0)+(inp.depth>=3?.05:0)-(weeds?.18:0)-(pursuit?.12:0);
+ if(key==='ned')fit=.60+(cold?.18:0)+(['bass','perch'].includes(inp.target)?.10:0)+(clean?.10:0)-(weeds?.24:0)-(windy?.10:0)-(inp.depth>6?.12:0)-(pursuit?.16:0);
+ if(key==='wacky')fit=.54+(bass?.30:0)+(inp.depth<=2.5?.12:0)+(calm&&inp.structure==='harbor'?.10:0)-(!bass?.18:0)-(windy?.22:0);
+ if(key==='weightless')fit=.55+(['bass','chub'].includes(inp.target)?.20:0)+(inp.depth<=1.2?.18:0)+(calm?.08:0)-(windy?.25:0)-(cold?.16:0);
+ return Math.max(.05,Math.min(.98,fit));
+}
+function profile(l,key){
+ if(!compatible(l,key)||l.rig?.preset)return null;
+ const baseId=l.baseId||l.id,baseFamily=l.baseFamily||l.family;
+ return {...l,id:baseId+'--rig-'+key,baseId,baseFamily,rigTechnique:key,family:rigs[key].name+' · '+baseFamily};
+}
+function candidates(l,inp){
+ if(!isSoft(l)||l.rig?.preset||!inp.rigStyle)return [l];
+ const keys=inp.rigStyle==='auto'?Object.keys(rigs):[inp.rigStyle];
+ return keys.map(key=>profile(l,key)).filter(Boolean);
+}
+function proposalKey(l){return l.rigTechnique?'rig:'+l.rigTechnique:l.cat;}
 function setup(l,inp){
  if(!isSoft(l))return null;
  const key=choose(l,inp);if(!key)return {key:inp.rigStyle,name:rigs[inp.rigStyle]?.name||'Montaggio',compatible:false};
@@ -45,7 +72,7 @@ function presentation(l,inp,env){
  const pike=inp.target==='pike',fast=['asp','trout'].includes(inp.target)&&!cold;
  const pause=cold?(clear?'4–6':'2–4'):(clear?'2–3':'1–2');
  const requestedRig=setup(l,inp),fallback=!!requestedRig&&(!requestedRig.compatible||requestedRig.excessDepth);
- const setupRig=fallback?setup(l,{...inp,rigStyle:'jig'}):requestedRig,key=setupRig?.key;
+ const setupRig=fallback?setup({...l,rigTechnique:null},{...inp,rigStyle:'jig'}):requestedRig,key=setupRig?.key;
  const diving=/minnow|jerkbait|crank/.test(l.cat)&&!l.cat.startsWith('sinking');
  const workingDepth=diving?Math.max(l.runMin,Math.min(l.runMax,inp.depth)):inp.depth;
  const depth=Number(workingDepth).toFixed(1).replace('.',','),edge={weed:'bordo esterno dell’erba',rock:'corridoi tra i massi',harbor:'lato ombreggiato di muri e pontili',drop:'primo scalino',cliff:'parete e primo gradino',sand:'transizione sabbia–sassi',river:'margine della corrente'}[inp.structure]||'zona scelta';
@@ -120,7 +147,6 @@ function presentation(l,inp,env){
  return {name,fallback,key:setupRig?.key||l.cat,rig:setupRig,steps,summary,context:context.join(' · '),edge,pause};
 }
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function rigOptions(l,inp){if(!isSoft(l))return '';const chosen=inp.rigStyle||'auto';return `<label for="detailRig">Montaggio della gomma</label><select id="detailRig"><option value="auto" ${chosen==='auto'?'selected':''}>Automatico per lo scenario</option>${Object.entries(rigs).map(([key,r])=>`<option value="${key}" ${key===chosen?'selected':''} ${compatible(l,key)?'':'disabled'}>${r.name}${compatible(l,key)?'':' · misura / forma non adatta'}</option>`).join('')}</select>`;}
 function geometry(plan,phase){
  const key=plan.rig?.key,action=plan.steps[phase].action;
  if(key==='dropshot'){const x=phase===2?200:170;return {x,y:109,line:`M320 24 L${x+54} 109 L${x+40} 171`,sinker:[x+40,171],mount:'drop'};}
@@ -151,7 +177,7 @@ function diagram(l,inp,env,plan,phase){
  else motion=arrow(`M87 ${surface?47:105} L147 ${surface?47:105}`);
  const weeds=inp.structure==='weed'?'<g fill="#438d69"><path d="M48 174 Q25 142 40 117 Q36 150 55 174Z"/><path d="M58 176 Q48 117 65 91 Q58 136 67 175Z"/><path d="M72 174 Q67 137 87 111 Q78 146 81 174Z"/></g>':'';
  const rocks=inp.structure==='sand'?'':'<g><path d="M19 180 L33 148 L65 151 L85 180Z" fill="#a9b2a3"/><path d="M33 148 L51 170 L65 151Z" fill="#d5dac9"/><path d="M51 170 L85 180 L65 151Z" fill="#7f958b"/><path d="M257 183 L280 154 L304 165 L326 186Z" fill="#b8c0ac"/><path d="M280 154 L287 183 L304 165Z" fill="#8ba697"/></g>';
- const softImage=(x,y,h)=>{const img=`<image href="./assets/illustrations/${asset}.png?v=8.3" x="${x}" y="${y}" width="116" height="${h}" preserveAspectRatio="xMidYMid meet" style="filter:${filter}"/>`;return l.cat==='soft creature'?`<g data-rig-entry="tail" transform="translate(${2*(x+58)} 0) scale(-1 1)">${img}</g>`:img;};
+ const softImage=(x,y,h)=>{const img=`<image href="./assets/illustrations/${asset}.png?v=9.0" x="${x}" y="${y}" width="116" height="${h}" preserveAspectRatio="xMidYMid meet" style="filter:${filter}"/>`;return l.cat==='soft creature'?`<g data-rig-entry="tail" transform="translate(${2*(x+58)} 0) scale(-1 1)">${img}</g>`:img;};
  let lure=softImage(g.x-62,g.y-25,56);
  if(g.mount==='ned')lure=`<g transform="rotate(78 202 165)">${softImage(86,138,50)}</g>`;
  let rig='';
@@ -167,6 +193,6 @@ function diagram(l,inp,env,plan,phase){
  return `<svg class="retrieve-scene" viewBox="0 0 340 205" role="img" aria-label="${esc(s.title+': '+s.text)}"><defs><linearGradient id="${uid}-water" x2="0" y2="1"><stop stop-color="#d8f2f2"/><stop offset="1" stop-color="#70bfc9"/></linearGradient><marker id="${uid}-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 L9 5 L0 10Z" fill="#ef9a40"/></marker></defs><rect width="340" height="205" rx="15" fill="url(#${uid}-water)"/><path d="M0 0 H340 V46 L279 52 L199 44 L113 49 L46 44 L0 48Z" fill="#e9f6f4"/><path d="M0 49 L111 48 L68 143Z" fill="#a4dcd8" opacity=".55"/><path d="M111 48 L225 47 L177 143Z" fill="#bee8df" opacity=".5"/><path d="M225 47 L340 48 L293 158 L177 143Z" fill="#87cdd0" opacity=".35"/><path d="M0 48 Q25 43 49 48 T98 48 T147 48 T196 48 T245 48 T294 48 T343 48" fill="none" stroke="#fff" stroke-width="2"/><path d="M0 180 L55 175 L125 183 L203 173 L273 181 L340 177 V205 H0Z" fill="${bottom}"/><path d="M0 180 L83 205 L125 183Z" fill="#c2c6b0"/><path d="M125 183 L203 173 L228 205Z" fill="#a5b39d"/><path d="M228 205 L273 181 L340 205Z" fill="#ccd0b5"/>${rocks}${weeds}<path d="${g.line}" stroke="#effaff" stroke-width="2" fill="none"/>${rod}${motion}${lure}${rig}${surface?'<path d="M93 60 Q105 55 117 60 M72 65 Q86 60 96 65" stroke="#fff" stroke-width="2" fill="none"/>':''}<rect x="12" y="12" width="${s.metric?Math.min(160,26+s.metric.length*6):57}" height="22" rx="11" fill="#ffffffcb"/><text x="23" y="27" fill="#1c5367" font-size="11" font-family="system-ui" font-weight="650">${esc(s.metric||'Fase '+(phase+1))}</text></svg>`;
 }
 function render(l,inp,env){const p=presentation(l,inp,env);return `<section id="retrieveGuide" class="retrieve-guide" aria-label="Recupero in tre passaggi"><div class="guide-heading"><div><span class="eyebrow">Per questo scenario</span><h3>${esc(p.name)}</h3><p>${esc(p.context)}${p.fallback?' · Il montaggio scelto non è adatto: qui è illustrata l’alternativa jig head.':''}</p></div><span class="guide-count">3 passaggi</span></div><div class="retrieve-panels">${p.steps.map((s,i)=>`<figure>${diagram(l,inp,env,p,i)}<figcaption><h4><span>${i+1}</span>${esc(s.title)}</h4><p>${esc(s.text)}</p></figcaption></figure>`).join('')}</div></section>`;}
-function catalog(){return `<section class="technique-catalog"><div class="result-heading"><div><span class="eyebrow">Abbina la gomma al montaggio</span><h2>Tecniche e montaggi</h2></div></div><div class="technique-grid">${Object.entries(rigs).map(([key,r])=>`<button class="technique-tile" type="button" data-technique="${key}"><span class="technique-glyph" aria-hidden="true">${{jig:'↗',dropshot:'↕',texas:'⌁',carolina:'↔',ned:'⊥',wacky:'∪',weightless:'≈'}[key]}</span><strong>${r.name}</strong><span>${r.description}</span><small>Prova questo montaggio ↗</small></button>`).join('')}</div></section>`;}
-window.GardaTechniques={rigs,compatible,choose,setup,presentation,rigOptions,render,catalog};
+function catalog(){return `<section class="technique-catalog"><div class="result-heading"><div><span class="eyebrow">Consigliati insieme alle esche</span><h2>Tecniche e montaggi</h2></div></div><div class="technique-grid">${Object.entries(rigs).map(([key,r])=>`<button class="technique-tile" type="button" data-technique="${key}"><span class="technique-glyph" aria-hidden="true">${{jig:'↗',dropshot:'↕',texas:'⌁',carolina:'↔',ned:'⊥',wacky:'∪',weightless:'≈'}[key]}</span><strong>${r.name}</strong><span>${r.description}</span><small>Vedi proposta consigliata ↗</small></button>`).join('')}</div></section>`;}
+window.GardaTechniques={rigs,compatible,choose,suitability,profile,candidates,proposalKey,setup,presentation,render,catalog};
 })();

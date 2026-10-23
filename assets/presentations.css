@@ -5,3 +5,5 @@
 @media(prefers-reduced-motion:reduce){.technique-tile,.lure-art img{transition:none}}
 
 .guide-jump{display:block;color:#126b8d;font-size:12px;line-height:1.6;margin:18px 0 0;text-decoration:none;font-weight:650}.guide-jump:hover{text-decoration:underline}.retrieve-guide{scroll-margin-top:20px}
+
+.recommended-rig{font-size:11px;line-height:1.6;color:#426c80;margin:8px 0 0}.simple-choice h3{line-height:1.22}

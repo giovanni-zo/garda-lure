@@ -23,7 +23,7 @@
       head=[1.5,2,3,5,7,10,14,18,21,28,35,40].find(g=>g>=required)||40;
     }
     const hardware=Math.max(0,Number(inp.rigHardware||0));
-    if(!r.preset&&window.GardaTechniques&&inp.rigStyle){
+    if(!r.preset&&window.GardaTechniques&&(inp.rigStyle||l.rigTechnique)){
       const mount=window.GardaTechniques.setup(l,inp);
       if(mount?.compatible){head=mount.headWeight;return {bodyWeight:r.bodyWeight,headWeight:head,hardwareWeight:hardware,totalWeight:r.bodyWeight+head+hardware,hookType:mount.hookType,preset:false,style:mount.key,styleName:mount.name,leaderCm:mount.leaderCm,techniqueValid:!mount.excessDepth};}
       if(mount)return {bodyWeight:r.bodyWeight,headWeight:head,hardwareWeight:hardware,totalWeight:r.bodyWeight+head+hardware,hookType:inp.softHook==='weedless'?'weedless':'exposed',preset:false,style:mount.key,styleName:mount.name,leaderCm:0,techniqueValid:false};
@@ -171,9 +171,13 @@
     const castFit=inp.dropDistance<=a.castRange.min?1:inp.dropDistance<=a.castRange.max?.55+.45*(a.castRange.max-inp.dropDistance)/(a.castRange.max-a.castRange.min):.3*reach;
     const slow=inp.waterTemp<12||env.activity<45;
     const style=slow?(soft(l)?.95:l.finesse):.55*l.aggressive+.45*l.finesse;
+    const technique=soft(l)&&window.GardaTechniques&&inp.rigStyle?window.GardaTechniques.suitability(l,inp):style;
     const visibility=visibilityFit(l,inp,env),wind=windLureFit({...l,weight:a.rig.totalWeight},inp,env);
     // Species, presentation depth, rig and structure dominate; price has only a tie-breaking role.
-    let total=100*(.25*species+.12*sf+.20*a.depth+.12*castFit+.13*st+.09*style+.06*visibility+.03*wind);
+    const rigged=soft(l)&&window.GardaTechniques&&inp.rigStyle;
+    let total=100*(rigged
+      ? .20*species+.12*sf+.18*a.depth+.10*castFit+.12*st+.20*technique+.05*visibility+.03*wind
+      : .25*species+.12*sf+.20*a.depth+.12*castFit+.13*st+.09*style+.06*visibility+.03*wind);
     total*=Math.sqrt(a.depth)*Math.pow(reach,1.5)*(a.rod?1:.25);
     const prey=inp.forage||'auto';
     if(prey==='craw'&&l.cat==='soft creature')total+=3;
@@ -181,14 +185,15 @@
     total-=risk*7;
     if(inp.shoreOnly)total*=.9+.1*l.shore;
     if(surface(l)&&inp.waterTemp<12)total*=.6;
-    if(inp.target==='chub'&&inp.clarity>=7&&env.light>.5&&l.weight>12)total-=6;
+    if(inp.target==='chub'&&inp.clarity>=7&&env.light>.5&&a.rig.totalWeight>12)total-=6;
     total+=(inp.budget/100||0)*(l.qpr-70)*.02;
-    return {total:clamp(total,0,100),speciesFit:species*100,sizeFit:sf*100,depthFit:a.depth*100,castFit:castFit*100,structFit:st*100,habitatFit:st*100,styleFit:style*100,visFit:visibility*100,windFit:wind*100,qpr:l.qpr,risk:risk*100,expectedCast:a.cast,castRange:a.castRange,locBoost:50,practical:a.practical,limitations:a.reasons,rig:a.rig};
+    return {total:clamp(total,0,100),speciesFit:species*100,sizeFit:sf*100,depthFit:a.depth*100,castFit:castFit*100,structFit:st*100,habitatFit:st*100,styleFit:style*100,techniqueFit:technique*100,visFit:visibility*100,windFit:wind*100,qpr:l.qpr,risk:risk*100,expectedCast:a.cast,castRange:a.castRange,locBoost:50,practical:a.practical,limitations:a.reasons,rig:a.rig};
   };
   filteredLures=function(inp){
     if(inp.rodMin&&inp.rodMax&&inp.rodMin>inp.rodMax)return [];
     const env=computeEnvironment(inp);
-    return LURES.filter(l=>(!inp.rigStyle||inp.rigStyle==='auto'||soft(l))&&(inp.makerFilter==='all'||l.maker===inp.makerFilter)&&(inp.catFilter==='all'||l.cat===inp.catFilter)&&(!inp.practicalOnly||assess(l,inp,env).practical));
+    const candidates=window.GardaTechniques?LURES.flatMap(l=>window.GardaTechniques.candidates(l,inp)):LURES;
+    return candidates.filter(l=>(!inp.rigStyle||inp.rigStyle==='auto'||soft(l))&&(inp.makerFilter==='all'||l.maker===inp.makerFilter)&&(inp.catFilter==='all'||l.cat===inp.catFilter||inp.catFilter==='rig:'+l.rigTechnique)&&(!inp.practicalOnly||assess(l,inp,env).practical));
   };
   retrieveAdvice=function(l,inp,env){
     if(window.GardaTechniques){const p=window.GardaTechniques.presentation(l,inp,env);return (soft(l)?rigText(l,inp)+'. ':'')+p.summary;}
@@ -217,6 +222,7 @@
     return parts.join(' · ');
   };
   function method(l){
+    if(l.rigTechnique)return 'rig:'+l.rigTechnique;
     if(soft(l))return 'soft';if(surface(l))return 'surface';if(metal(l))return 'metal';if(l.cat==='spinner')return 'spinner';if(['spinnerbait','chatterbait'].includes(l.cat))return 'cover';if(l.cat.includes('crank'))return 'crank';return 'minnow';
   }
   function selectAlternatives(rows,inp){
@@ -237,7 +243,16 @@
   renderTopPick=function(top,inp,env){return oldTop(top,inp,env).replace(/<div class="softbait-tip">[\s\S]*?<\/div>/g,'');};
   const oldSingle=renderSingle;
   renderSingle=function(inp,env,rows){const selected=$('singleVariant').value;populateVariants();if(selected)$('singleVariant').value=selected;oldSingle(inp,env,rows);const box=$('singleBody');if(box)box.innerHTML=box.innerHTML.replace(/<div class="softbait-tip">[\s\S]*?<\/div>/g,'');};
-  Object.assign(window.GardaSelector,{assess,rigFor,rigText,castRange,snagRisk,selectAlternatives,method});
+  function resolveProfile(id){
+    const base=LURES.find(l=>l.id===id);if(base)return base;
+    const split=id.lastIndexOf('--rig-');if(split<0||!window.GardaTechniques)return null;
+    const l=LURES.find(l=>l.id===id.slice(0,split));return l?window.GardaTechniques.profile(l,id.slice(split+6)):null;
+  }
+  function bestPresentation(base,inp,env,key){
+    const candidates=window.GardaTechniques?window.GardaTechniques.candidates(base,{...inp,rigStyle:key||'auto'}):[base];
+    return candidates.map(l=>({l,s:lureScore(l,inp,env)})).sort((a,b)=>Number(b.s.practical)-Number(a.s.practical)||b.s.total-a.s.total)[0]?.l||base;
+  }
+  Object.assign(window.GardaSelector,{assess,rigFor,rigText,castRange,snagRisk,selectAlternatives,method,resolveProfile,bestPresentation});
   const oldMapCard=renderMapPointCard;
   renderMapPointCard=function(inp,env){return oldMapCard(inp,env).replace(/<div class="softbait-tip">[\s\S]*?<\/div>/g,'');};
   ['rodLength','lineDiameter','jigHead','rigHardware','softHook','weedDensity','bottomDepth'].forEach(id=>{
