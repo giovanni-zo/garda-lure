@@ -1,13 +1,19 @@
-# Garda Lure · versione 7.2
+# Garda Lure · versione 8.3
 
 Interfaccia in italiano per scegliere una tecnica di pesca sul Garda.
 
 - 24 tipi di esca, senza marche, con 144 profili di misura/peso.
 - Varianti floating, suspending, sinking e deep distinte.
-- 19 sagome low poly di esche e due nuove livree persico (riutilizzate per varianti della stessa
-  sagoma) e 7 pesci. Le livree dipendono da esca, target, foraggio, luce e
-  limpidezza: argento/oro/rame per metalli, persico per swimbait da luccio,
-  perla, firetiger, pumpkin, marrone o nero/blu secondo lo scenario.
+- Sagome low poly e 7 pesci. Tredici nuovi asset distinguono palette deep e
+  shallow, soft shad costolato, swimbait liscio e gomme senza montaggio fisso.
+  Le livree multicolore dipendono da esca, target, foraggio, luce, vento,
+  struttura e limpidezza: argento/oro/rame per metalli, blu/argento con ventre
+  bianco, oliva/perla, persico, perla, firetiger, pumpkin o nero/blu.
+  Il persico per il luccio è una scelta contestuale, non una regola fissa.
+- Sette montaggi per gomme: jig head, drop shot, Texas, Carolina, Ned, wacky
+  e weightless. Compatibilità di forma, taglia, quota, peso montato e canna.
+  Ogni scheda contiene tre vignette low poly con recupero, pause e montaggio
+  adattati allo scenario; il montaggio si può cambiare nella scheda.
 - Flusso: pesce, zona/struttura, giorno/ora, acqua e potenza della canna.
   Specie e taglia sono sempre visibili. Meteo e acqua, quota, distanza, casting
   esatto, lenza e montaggio sono regolabili; montaggio e piombatura automatici
@@ -29,8 +35,11 @@ standalone sono archivi storici, non questa versione.
 
 Gli asset finali si trovano in `assets/illustrations/`. Sono PNG con trasparenza,
 generati con lo strumento integrato ImageGen. `assets/illustrations/prompts.json`
-registra soggetti, stile e file. Le varianti di colore sono applicate nel sito,
-senza duplicare i file delle immagini. Gli scarti di stile precedenti alla
+registra gli asset originali; `assets/illustrations/v8-prompts.json` registra
+i tredici nuovi prompt e i riferimenti. Alcune livree sono native nella bitmap;
+le altre usano maschere cromatiche SVG che conservano ventre bianco, metallo
+e sfaccettature. Le vignette sono SVG dinamici con queste immagini e
+geometrie di amo, piombo, lenza e frecce. Gli scarti di stile precedenti alla
 richiesta low poly non sono inclusi.
 
 ## Mappe
@@ -63,10 +72,12 @@ commerciale. `assets/recommendation-engine.js` gestisce montaggi, profondità,
 casting, vegetazione e ordinamento. `assets/simple-fishing.js` gestisce il nuovo
 flusso visivo; `assets/garda-map.js` gestisce entrambe le viste geografiche.
 
-- `node tests/scenarios.mjs`: 35 controlli di regressione più 25 controlli
+- `node tests/scenarios.mjs`: 35 controlli di regressione più 27 controlli
   estesi su 252 scenari e su colori, taglia, meteo orario e cambio ora legale.
 - `node tests/selector.mjs`: 35 controlli su coerenza di montaggi, profondità,
   vincoli canna, alternative e punteggi.
+- `node tests/presentations.mjs`: 25 controlli su 672 guide: tre vignette per
+  tutti i tipi e target, pause, galleggiabilità, montaggi, taglie, quota e asset.
 - `python3 tests/geography.py`: sagoma, Sirmione, isole, griglia e GLB condiviso.
 - Controllata in browser la selezione specie, il catalogo, i dettagli, il cambio
   cromatico e le viste 2D/3D. I controlli non misurano l'efficacia delle catture.
@@ -79,6 +90,7 @@ pioggia, vento, nuvole e pressione; acqua, torbidità e risacca restano separati
 La previsione si può personalizzare e la provenienza passa a “Manuale”.
 Alba/tramonto usano le equazioni NOAA e il fuso Europe/Rome.
 
-Regole e fonti: `docs/color-evidence.md`. Prompt e asset: `assets/illustrations/prompts.json`.
+Regole e fonti: `docs/color-evidence.md` e `docs/presentations.md`.
+Prompt e asset: `assets/illustrations/prompts.json` e `v8-prompts.json`.
 Gli asset visitati vengono conservati offline; il nucleo dell'app e il modello
-sono precache. Il service worker aggiorna gli asset con versione 7.2.
+sono precache. Il service worker aggiorna gli asset con versione 8.3.

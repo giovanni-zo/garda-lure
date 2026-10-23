@@ -11,13 +11,18 @@ cattura comparative. Il foraggio osservato dall'utente ha precedenza.
 - Metalli (rotanti, ondulanti, spintail, blade, jig): argento con acqua limpida
   e luce sufficiente; oro con cielo molto coperto o acqua velata; rame/arancio
   con acqua torbida. L'alternativa argento/oro resta visibile nella scheda.
-- Swimbait per il luccio: persico naturale in acqua limpida; agone/alborella
-  se l'utente segnala quel foraggio; perla in acqua velata; firetiger in acqua
-  torbida. Di notte si privilegia una silhouette scura.
+- Imitazioni di pesce: blu/argento con ventre bianco su sassi e acqua aperta;
+  oliva/perla nel molto limpido e calmo; perla in profondità, poca luce o vento.
+  Per il luccio il persico è automatico solo sul bordo delle erbe in acqua
+  limpida e relativamente bassa, oppure quando viene segnalato quel foraggio.
+  Agone/alborella osservati hanno precedenza. Il luccio nel torbido con grandi
+  swimbait può orientare al firetiger. Di notte lucioperca/perla, altrimenti
+  nero/blu per il contrasto. Hard minnow nel velato: oro/nero con gola arancio.
 - Gomme finesse: green pumpkin in acqua limpida; nero/blu in acqua torbida o
   di notte. Creature: marrone/gambero nel limpido, nero/blu nel torbido.
-- Spinnerbait e chatterbait: chiaro/naturale nel limpido, perla nel velato,
-  bianco/chartreuse nel torbido, nero/blu di notte.
+- Spinnerbait e chatterbait: blu/bianco nel limpido e calmo, oliva per il bass
+  tra le erbe; bianco/chartreuse con vento o acqua velata/torbida; nero/blu di notte.
+  Il bianco resta distinto dal chartreuse e le parti metalliche sono neutre.
 - Superficie: naturale con luce e acqua limpida; perla nel velato; nero per
   silhouette con poca luce o visibilità scarsa.
 
@@ -33,6 +38,8 @@ non viene trasformata automaticamente in torbidità dell'acqua.
   https://www.mepps.com/mepps-tactics/article/inland-trout-tips-tactics/435
 - Mepps, riflessione, colore dell'acqua e contrasto:
   https://www.mepps.com/mepps-tactics/article/color-technology-what-you-see-is-not-what-you-get/77
+- Bassmaster / Russ Lane, colori dello spinnerbait e chiarezza dell’acqua:
+  https://www.bassmaster.com/how-to/news/frugal-angler-spinnerbait/
 - Bassmaster, colori delle gomme: naturali/traslucidi nel limpido e colori
   scuri/opachi in bassa visibilità:
   https://www.bassmaster.com/bass-basics/news/the-texas-rig-part-5-soft-plastic-colors/
@@ -59,7 +66,16 @@ separati, inseriti dall'utente o stimati stagionalmente per l'acqua.
 
 ## Grafica
 
-Le nuove immagini persico naturale sono modifiche ImageGen dei due asset
-low poly originali (soft shad e glide bait). Le barre sono parte della bitmap;
-le altre livree usano filtri CSS coerenti con la palette raccomandata.
-Il colore di una livrea non cambia il peso, la galleggiabilità o il montaggio.
+Tredici nuovi PNG ImageGen separano le forme e aggiungono livree a più colori.
+Il deep jerk ha corpo allungato e paletta lunga; il deep crank è più panciuto
+con paletta lunga e larga; le varianti shallow hanno palette corte. Le gomme
+sono prive di amo/testina fissi, per poter rappresentare il montaggio scelto
+nelle vignette senza mostrare una testina da jig in un drop shot.
+
+I filtri SVG isolano le zone colorate blu/verdi, conservando ventre chiaro,
+ami e palette metalliche; oro e rame dei metalli usano una maschera di
+luminanza. Le gomme nero/blu usano un filtro sul corpo intero per convertire anche
+i marroni e i ventri chiari in sfumature scure e blu, conservando le faccette.
+Le livree native bypassano il filtro. Le barre del persico sono
+parte della bitmap, con sagome separate per shad costolato, swimbait liscio
+e glide. Colore e grafica non cambiano peso o galleggiabilità.

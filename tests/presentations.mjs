@@ -1,0 +1,45 @@
+import {context,root} from './selector.mjs';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+for(const f of ['lure-colors.js','fishing-techniques.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+f,root),'utf8'),context);
+const output=vm.runInContext(`(()=>{
+ const base={...DEFAULTS,date:'2026-07-15',hour:13,waterTemp:22,cloud:15,clarity:8,depth:3,dropDistance:12,rodMin:0,rodMax:0,practicalOnly:true,autoRig:true,rigStyle:'auto',jigHead:5,softHook:'exposed',weedDensity:'sparse'};
+ const api=window.GardaTechniques,checks={},env=computeEnvironment(base),small=LURES.find(l=>l.cat==='soft jerk'&&l.lengthCm===7),worm=LURES.find(l=>l.cat==='soft finesse'&&l.lengthCm===6);
+ let count=0;
+ for(const cat of window.GardaTypes.keys)for(const target of Object.keys(SPECIES))for(const [waterTemp,windSpeed,clarity,hour] of [[8,2,8,13],[22,8,2,13],[15,3,5,1],[24,0,9,7]]){
+  const l=LURES.find(l=>l.cat===cat),inp={...base,target,waterTemp,windSpeed,clarity,hour},e=computeEnvironment(inp),p=api.presentation(l,inp,e),html=api.render(l,inp,e);count++;
+  checks.threeSteps=checks.threeSteps!==false&&p.steps.length===3&&p.steps.every(s=>s.title&&s.text&&s.action);
+  checks.threeScenes=checks.threeScenes!==false&&(html.match(/<svg class="retrieve-scene"/g)||[]).length===3;
+  checks.noBrokenContent=checks.noBrokenContent!==false&&!/undefined|NaN/.test(html)&&!html.includes('vicino al corridoi');
+ }
+ checks.coverage=count===672;
+ const cold={...base,target:'perch',waterTemp:8,depth:6},warm={...cold,waterTemp:22};
+ checks.autoDropShot=api.choose(small,cold)==='dropshot';
+ checks.autoChanges=api.choose(small,warm)==='jig';
+ const ds={...cold,rigStyle:'dropshot'},r=window.GardaSelector.rigFor(small,ds);
+ checks.dropShotWeights=r.style==='dropshot'&&r.totalWeight===r.bodyWeight+r.headWeight+r.hardwareWeight&&r.leaderCm===50;
+ checks.dropShotBottom=depthFit(small,{...ds,depth:9.5,bottomDepth:10})>.9&&depthFit(small,{...ds,depth:4,bottomDepth:10})<.1;
+ checks.offsetTexas=window.GardaSelector.rigFor(small,{...base,rigStyle:'texas',structure:'weed'}).hookType==='weedless';
+ checks.carolinaLeader=window.GardaSelector.rigFor(small,{...base,rigStyle:'carolina'}).leaderCm===80;
+ const w=window.GardaSelector.rigFor(worm,{...base,depth:1,rigStyle:'wacky'});checks.wackyNoLead=w.headWeight===0&&w.totalWeight===w.bodyWeight;
+ const light=window.GardaSelector.rigFor(small,{...base,depth:1,rigStyle:'weightless'});checks.weightlessNoLead=light.headWeight===0;
+ checks.nedSizeGate=!api.compatible(LURES.find(l=>l.cat==='soft finesse'&&l.lengthCm===16),'ned')&&api.compatible(worm,'ned');
+ checks.dropShotSizeGate=!api.compatible(LURES.find(l=>l.cat==='soft shad'&&l.lengthCm===15),'dropshot');
+ const invalid=LURES.find(l=>l.cat==='soft swimbait'&&l.lengthCm===25);checks.invalidNotPractical=!window.GardaSelector.assess(invalid,{...base,rigStyle:'dropshot'},env).practical;
+ const rows=filteredLures({...ds,depth:6});checks.rigFilter=rows.length>0&&rows.every(l=>l.cat.includes('soft')&&api.compatible(l,'dropshot'));
+ const buzz=LURES.find(l=>l.cat==='buzzbait');checks.buzzNoStop=api.presentation(buzz,base,env).steps[2].text.includes('Non fermarti');
+ const floating=LURES.find(l=>l.cat==='floating minnow'),sinking=LURES.find(l=>l.cat==='sinking minnow');checks.buoyancyMatters=api.presentation(floating,base,env).steps[2].action==='rise'&&api.presentation(sinking,base,env).steps[2].action==='fall-pause';
+ const jerk=LURES.find(l=>l.cat==='suspending jerkbait');checks.coldPause=api.presentation(jerk,{...base,waterTemp:8},env).pause!==api.presentation(jerk,{...base,waterTemp:22},env).pause;
+ const deep=LURES.find(l=>l.cat==='deep crank'),deepPlan=api.presentation(deep,{...base,depth:15},env);checks.diverWorkingDepth=deepPlan.steps[0].metric===deep.runMax.toFixed(1).replace('.',',')+' m'&&deepPlan.context.includes('Quota di lavoro');
+ checks.deepMorphology=LURES.find(l=>l.cat==='deep jerkbait').art!==LURES.find(l=>l.cat==='suspending jerkbait').art&&LURES.find(l=>l.cat==='deep crank').art!==LURES.find(l=>l.cat==='crankbait').art;
+ checks.softMorphology=LURES.find(l=>l.cat==='soft swimbait').art!==LURES.find(l=>l.cat==='soft shad').art;
+ checks.crawTailRigging=api.render(LURES.find(l=>l.cat==='soft creature'),{...base,rigStyle:'texas'},env).includes('data-rig-entry="tail"');
+ checks.darkSoftBody=window.GardaColors.filterId('blackblue',worm)!==window.GardaColors.filterId('blackblue',LURES.find(l=>l.cat==='spinnerbait'));
+ const spinner=LURES.find(l=>l.cat==='spinnerbait'),color=window.GardaColors.pick(spinner,{...base,clarity:5},env);checks.nativeWhiteChartreuse=window.GardaColors.isNative(spinner,color,window.GardaColors.asset(spinner,color));
+ const filenames=new Set();for(const l of LURES)for(const key of Object.keys(window.GardaColors.palettes))filenames.add(window.GardaColors.asset(l,{key}));
+ return {checks,count,filenames:[...filenames]};
+})()`,context);
+for(const [name,passed] of Object.entries(output.checks))assert.equal(Boolean(passed),true,name);
+for(const file of output.filenames)assert.ok(fs.existsSync(new URL('assets/illustrations/'+file+'.png',root)),file);
+console.log(Object.keys(output.checks).length+' presentation checks passed across '+output.count+' guides. All referenced artwork exists.');

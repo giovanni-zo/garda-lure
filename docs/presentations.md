@@ -1,0 +1,59 @@
+# Montaggi e recuperi contestuali · v8.3
+
+Le guide sono euristiche pratiche, non risultati di prove di cattura sul Garda.
+Le tre vignette condividono la stessa forma e livrea della scheda. Le geometrie
+mostrano le relazioni tra gli elementi del montaggio; non sono in scala.
+
+## Scelta e compatibilità
+
+- Jig head: gomma solidale alla testina, peso dimensionato per quota e vento.
+- Drop shot: amo sulla lenza sopra il piombo terminale, gomme fino a 12 cm.
+  Tratto amo–piombo 35–50 cm sulla lenza; con fondale noto il controllo quota
+  tiene conto dell’angolo della lenza. Non equivale sempre all’altezza verticale.
+- Texas: piombo bullet davanti alla gomma, amo offset protetto, gomme fino a 17 cm.
+- Carolina: piombo sulla madrelenza prima della girella, finale 50–80 cm, gomme
+  compatibili fino a 14 cm. Il piombo non è sotto l’esca come nel drop shot.
+- Ned: testina mushroom e finesse/creature corte, massimo 8 cm. L’assetto della
+  gomma dipende dalla sua galleggiabilità, non viene garantito verticale.
+- Wacky: worm innescato al centro, senza piombo aggiunto, poca acqua.
+- Weightless: gomma su offset senza zavorra aggiunta, fino a 1,5 m e controllo
+  dipendente dal vento. Non applicato alle grandi swimbait.
+
+L’automatico sceglie Texas nelle erbe; drop shot con persico/lucioperca e acqua
+fredda a quota sufficiente; wacky sul bass in porto, calmo e basso; Carolina
+su sabbia/scalino più profondo per il bass; weightless nel basso e calmo;
+Ned su fondo pulito freddo con gomme corte; jig head negli altri casi.
+La scelta esplicita filtra i tipi e le taglie compatibili. Un montaggio fuori
+quota o non adatto resta segnalato nella scheda e la guida mostra l’alternativa
+jig head. Il peso montato conserva corpo, piombo e accessori, anche in manuale.
+
+## Recuperi
+
+Le pause aumentano con acqua fredda e limpida; il vento cambia posizione della
+canna e controllo del lasco. Specie, struttura e profondità cambiano traiettoria
+e cadenza. Le gomme da luccio possono lavorare lineari; quelle per lucioperca
+con saltelli bassi. Le istruzioni distinguono floating in risalita, suspending
+in pausa e sinking in discesa. I diver rispettano la fascia di lavoro della
+misura selezionata, senza promettere una quota oltre la paletta.
+
+Popper: colpo corto e attesa; buzzbait: elica in superficie senza stop;
+spinner: paletta sempre attiva; spinnerbait/chatterbait: recupero regolare
+con cambi brevi; glide: mezzi giri e S; ondulante: flutter controllato;
+blade, lipless e metal jig: sollevamenti e discesa seguita. Le quantità in
+secondi/centimetri sono punti di partenza da adattare, non misure previste.
+
+## Fonti primarie consultate il 23 ottobre 2026
+
+- Texas Parks and Wildlife, Fishing Rigs: geometria drop shot e rig di base.
+  https://tpwd.texas.gov/publications/pwdpubs/media/fishing_rigs.pdf
+- Z-Man, Ned Rig: testina mushroom, gomme corte e presentazioni lente.
+  https://zmanfishing.com/pages/ned-rig
+- Oklahoma Department of Wildlife Conservation, Summer Fishing Tips: impiego
+  di Texas, Carolina e drop shot, profondità e foraggio.
+  https://www.wildlifedepartment.com/fishing/resources/summer-fishing-tips
+- Bassmaster / Kevin VanDam, Deep Jerkbait Tactics for Cold Water: piccoli
+  richiami, lasco e pause nel freddo, lavoro lungo gli scalini.
+  https://www.bassmaster.com/news/deep-jerkbait-tactics-for-cold-water/
+
+Queste fonti descrivono tecniche generali. La combinazione con il Garda è una
+regola dell’app, non una convalida sperimentale specifica per questo lago.

@@ -2,7 +2,7 @@ import {context,root} from './selector.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-for(const file of ['lure-colors.js','fishing-weather.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+file,root),'utf8'),context);
+for(const file of ['lure-colors.js','fishing-weather.js','fishing-techniques.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+file,root),'utf8'),context);
 const result=vm.runInContext(`(()=>{
  const checks={},base={...DEFAULTS,date:'2026-07-15',hour:13,waterTemp:22,clarity:8,cloud:15,depth:2,dropDistance:12,rodMin:0,rodMax:0,groupFamilies:true,practicalOnly:true,jigHead:5,softHook:'exposed',weedDensity:'sparse'};
  checks.profiles=LURES.length===144&&window.GardaTypes.keys.every(cat=>LURES.filter(l=>l.cat===cat).length===6);
@@ -16,7 +16,9 @@ const result=vm.runInContext(`(()=>{
  checks.stainedMetal=p('spoon',{...base,clarity:5}).key==='gold';
  checks.cloudyMetal=p('spinner',{...base,cloud:90}).key==='gold';
  checks.muddyMetal=p('spoon',{...base,clarity:2}).key==='copper';
- checks.pikePerch=p('soft swimbait',{...base,target:'pike'}).key==='perch'&&p('glide swimbait',{...base,target:'pike'}).key==='perch';
+ checks.pikeDefaultNotFixed=p('soft swimbait',{...base,target:'pike'}).key==='baitfish';
+ checks.observedPerch=p('soft swimbait',{...base,target:'pike',forage:'perch'}).key==='perch';
+ checks.weedPerch=p('glide swimbait',{...base,target:'pike',structure:'weed'}).key==='perch';
  checks.openWaterForage=p('soft swimbait',{...base,target:'pike',forage:'baitfish'}).key==='baitfish';
  checks.pikeFiretiger=p('glide swimbait',{...base,target:'pike',clarity:2}).key==='firetiger';
  checks.bassFinesse=p('soft finesse',{...base,target:'bass'}).key==='pumpkin'&&p('soft finesse',{...base,target:'bass',clarity:2}).key==='blackblue';

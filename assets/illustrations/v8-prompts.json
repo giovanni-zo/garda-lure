@@ -1,0 +1,70 @@
+{
+  "tool": "Built-in ImageGen",
+  "assets": [
+    {
+      "file": "spinnerbait-white-chartreuse-v8.png",
+      "reference": "spinnerbait.png",
+      "prompt": "Edit target: the referenced low-poly spinnerbait lure. Preserve its exact wire-arm shape, two willow-leaf metal blades, skirt, jig head, single upward hook, full side view facing right. Correct the paint as a genuinely TWO COLOR WHITE AND CHARTREUSE skirt: at least 65 percent of skirt strands are pearl WHITE, 35 percent vivid chartreuse yellow-green, separate and interleaved. Jig head white with chartreuse crown, golden eye and black pupil. Both blades must remain SILVER steel with triangular highlights; hook dark graphite, wire steel. Do not tint the whole object yellow. Preserve chunky LOW POLY triangular facets. Transparent background with absolutely NO glow, haze, shadows outside the object, text, logos or scenery. Entire isolated lure, generous transparent margins."
+    },
+    {
+      "file": "jerkbait-deep-v8.png",
+      "reference": "jerkbait.png",
+      "prompt": "Edit target: referenced slender low-poly jerkbait lure, facing right. Make its DEEP DIVING variant unmistakable: retain elongated minnow body, TWO dark treble hooks, eye, but replace tiny diving bill with a LARGE LONG TRANSPARENT spoon-shaped bill projecting forward and slightly downward from the mouth, bill length about 35 percent of body length. Line attachment eye on the bill. Natural multicolor lure paint: dark navy blue back, blue-silver flanks, PEARL WHITE belly, small orange throat patch. Sharp flat shaded triangular facets, matching low-poly educational fishing-thumbnail style. Clear plastic bill has pale blue edges so it is visible. Entire isolated object with generous margins on truly transparent background; no glow, haze, contact shadow, scenery, labels, logos or text."
+    },
+    {
+      "file": "crankbait-deep-v8.png",
+      "reference": "crankbait.png",
+      "prompt": "Edit target: referenced short round-bodied low-poly crankbait fishing lure. Make the DEEP DIVING variant: fat rounded faceted body, TWO dark treble hooks, and a VERY LONG WIDE CLEAR diving lip projecting forward from the mouth, about HALF the body length, with line tie on the bill. This bill must clearly be much larger than a shallow crankbait bill. Paint body in multicolor natural baitfish pattern: dark turquoise/blue back, silvery pale blue sides, white belly, ORANGE throat accent, one dark flank spot. Bold triangular low-poly facets and chunky geometry. Side view facing right, entire lure visible with ample padding. Plastic lip pale icy-blue and translucent; hooks gray, golden eye. Truly TRANSPARENT background. No glow, fog, haze, scenery, shadows outside the object, logos or text."
+    },
+    {
+      "file": "soft-swimbait-v8.png",
+      "reference": "soft-shad.png",
+      "prompt": "Use referenced low-poly soft shad as style reference. Create a DISTINCT SOFT SWIMBAIT BODY: a smooth, plump realistic small fish-shaped silicone lure with an eye, molded gill and small fins and a broad round PADDLE TAIL. This is the large smooth fish imitation, NOT a ribbed worm/shad. Completely UNRIGGED: NO jig head, NO weight, NO hook, NO wire. Natural baitfish color with dark deep blue back, silvery blue sides, ivory WHITE belly and a small amber gill/throat accent. Chunky LOW POLY flat triangular facets, clean side profile facing right, whole body centered with generous padding. Transparent background, absolutely no glow, haze, contact shadow, text, brands or scenery."
+    },
+    {
+      "file": "crankbait-shallow-v8.png",
+      "reference": "crankbait.png",
+      "prompt": "Edit referenced low-poly round-bodied crankbait lure into the SHALLOW / SQUAREBILL version. Fat short round body with two dark treble hooks and a very SHORT, small, clear SQUARE diving lip at the mouth, only 12 percent of body length. Do NOT give it a long deep-diving lip. Paint: turquoise BLUE back, silver-white flanks and belly, small vivid ORANGE throat and dark lateral spot. Crisp triangular flat shaded low-poly facets, whole side view facing right with ample margins. Isolated truly transparent background, NO glow, haze, shadows outside object, text, logo or scene. Gray hooks, plastic bill pale icy-blue."
+    },
+    {
+      "file": "chatterbait-white-chartreuse-v8.png",
+      "reference": "chatterbait.png",
+      "prompt": "Edit referenced low-poly chatterbait / bladed jig. Keep clear HEXAGONAL SILVER vibrating blade directly attached at the front, skirt and upward single dark hook. Repaint with genuinely TWO COLOR WHITE AND CHARTREUSE skirt: at least 65 percent bright pearl WHITE strands and 35 percent lime/chartreuse strands, separate, interleaved, visibly different. Jig head white with chartreuse crown and black/gold eye. Soft trailer white with only tail tip chartreuse. SILVER blade and dark graphite hook must stay neutral gray, NOT yellow. Whole side view facing right. Angular low-poly triangular facets. TRANSPARENT background; absolutely NO glow, haze, outside shadows, logos, text or scenery."
+    },
+    {
+      "file": "soft-shad-bare-v8.png",
+      "reference": "soft-shad.png",
+      "prompt": "Edit referenced ribbed low-poly soft shad fishing lure. REMOVE the entire gray jig head and ALL hooks: show only an unrigged silicone ribbed paddle-tail body, rounded nose at right and flat paddle tail at left, like a bare soft plastic before mounting. Keep readable ribbed profile distinct from a smooth fish-shaped swimbait. Paint dark BLUE back, silver-blue flanks, pearl WHITE belly, subtle amber eye, small orange gill accent. Genuinely multicolor, not all blue. LOW POLY angular flat triangular facets. Full side profile facing right with ample transparent padding. Truly transparent background, no glow, haze, outside shadow, wire, sinker, metal, text or logo."
+    },
+    {
+      "file": "soft-jerk-bare-v8.png",
+      "reference": "soft-jerk.png",
+      "prompt": "Edit referenced low-poly fork-tail soft jerk fishing lure. REMOVE ALL hooks and metal. Show only unrigged flexible silicone bait: slender body with forked tail, pointed rounded nose, small molded eye. Paint translucent-looking light gray-blue sides, navy BLUE back, pearl WHITE belly and subtle amber gill. Dark back/white belly must be distinct. Crisp flat-shaded triangular LOW POLY facets, isolated full side profile facing right, generous margins. Truly transparent background. No glow, haze, shadow outside subject, text, logo, weight, jig head or hooks."
+    },
+    {
+      "file": "worm-bare-v8.png",
+      "reference": "worm.png",
+      "prompt": "Edit referenced low-poly finesse worm lure. REMOVE the large offset hook and all metal hardware. Show only a gently curved UNRIGGED ribbed silicone worm with a thicker round head on right and tapered tail at left. Green-pumpkin olive brown back, lighter translucent tan belly, a few tiny dark flecks, mildly amber tail tip. Preserve clean chunky triangular LOW POLY facets and simple educational fishing-thumbnail style. Entire worm isolated, side view, generous padding, genuinely transparent background. NO hooks, jig head, lead, glow, haze, contact shadow, text, labels or scenery."
+    },
+    {
+      "file": "soft-swimbait-perch-v8.png",
+      "reference": "soft-swimbait-v8.png",
+      "prompt": "Edit this unrigged low-poly smooth fish-shaped soft swimbait. Preserve its smooth plump silicone fish body, molded fins and eye, wide PADDLE TAIL, full silhouette, orientation facing right, and unrigged state (no hooks or weight). Repaint as natural EUROPEAN PERCH: muted olive back, green-gold sides with SIX clear charcoal vertical bars, WHITE/cream belly, small ORANGE fins and tail accents. Distinct colors, natural not neon. Maintain flat triangular low-poly facets. Truly transparent background, entire body padded, no text, scenery, added hooks or metal."
+    },
+    {
+      "file": "soft-shad-perch-bare-v8.png",
+      "reference": "soft-shad-bare-v8.png",
+      "prompt": "Edit this bare ribbed paddle-tail soft shad. Preserve exact ribbed silicone geometry and paddle tail with no hooks or jig head. Repaint natural European perch livery: olive green dorsal region, pale golden sides with six dark vertical bars, creamy WHITE belly, modest orange paddle-tail tip. Distinct colors rather than a single hue. LOW POLY triangular facets, entire side profile facing right. Transparent background with no text, scenery, metal, hooks, weight, haze or glow."
+    },
+    {
+      "file": "creature-bare-v8.png",
+      "reference": "creature.png",
+      "prompt": "Edit this low-poly silicone craw creature lure. Remove ALL hooks and any metal. Keep the two broad crayfish claws, segmented body, little legs and antennae, chunky triangular faceted low-poly shape. Paint brown/green-pumpkin body, orange rust CLAW TIPS and lighter tan underside, subtle dark flecks, visibly multicolor. It must be an unrigged soft plastic craw bait, not live photoreal animal. Entire isolated body, side view facing right with generous padding. Truly transparent background, no text, glow, haze, shadows outside the object, hooks, weight or scenery."
+    },
+    {
+      "file": "minnow-natural-v8.png",
+      "reference": "jerkbait.png",
+      "prompt": "Using this slender low-poly lure as style and shape reference, create a natural minnow fishing lure with an elongated slender fish body and a SMALL SHORT CLEAR diving lip, about 10 percent of body length, clearly a normal shallow minnow and not a long-billed deep diver. Two dark graphite treble hooks. Paint dark navy/teal BLUE back, silver-blue flanks, clean WHITE belly and small ORANGE throat patch, amber eye. Crisp flat shaded triangular facets. Entire isolated side profile facing right, generous transparent margins. No text, logo, haze, glow, background scenery or shadows outside object."
+    }
+  ]
+}

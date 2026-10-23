@@ -1,12 +1,12 @@
 /* Garda Lure Simulator - PWA service worker
    Aggiornamenti facili: il file HTML usa network-first, quindi quando carichi una nuova versione su GitHub Pages l'app prova sempre a prendere la versione online piu' recente. */
-const CACHE_NAME = "garda-lure-pwa-v7.2-glass";
+const CACHE_NAME = "garda-lure-pwa-v8.3-presentations";
 const APP_SHELL = [
   "./", "./index.html", "./manifest.webmanifest",
   "./assets/garda-3d.css", "./assets/lure-selector.js?v=5.1",
-  "./assets/recommendation-engine.js?v=7.2", "./assets/lure-selector.css?v=4.2",
-  "./assets/lure-types.js?v=7.2", "./assets/simple-fishing.js?v=7.2", "./assets/simple-fishing.css?v=6.4",
-  "./assets/liquid-glass.css?v=7.2", "./assets/lure-colors.js?v=7.2", "./assets/fishing-weather.js?v=7.2",
+  "./assets/recommendation-engine.js?v=8.3", "./assets/lure-selector.css?v=4.2",
+  "./assets/lure-types.js?v=8.3", "./assets/simple-fishing.js?v=8.3", "./assets/simple-fishing.css?v=6.4",
+  "./assets/liquid-glass.css?v=7.2", "./assets/lure-colors.js?v=8.3", "./assets/fishing-weather.js?v=7.2", "./assets/fishing-techniques.js?v=8.3", "./assets/presentations.css?v=8.3",
   "./assets/garda-lake-data.js?v=6.3", "./assets/garda-map.js?v=6.6",
   "./assets/lake-garda-v6.glb?v=6.1", "./vendor/model-viewer.min.js",
   "./icon-192.png", "./icon-512.png"
@@ -56,11 +56,12 @@ self.addEventListener("fetch", event => {
   if (url.origin === location.origin) {
     event.respondWith(
       caches.match(request).then(cached => {
-        const update = fetch(request).then(response => {
+        const update = fetch(request).then(async response => {
           const copy = response.clone();
-          if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          if (response.ok) await caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
           return response;
         }).catch(() => cached);
+        event.waitUntil(update.then(() => undefined));
         return cached || update;
       })
     );

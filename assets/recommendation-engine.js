@@ -23,11 +23,21 @@
       head=[1.5,2,3,5,7,10,14,18,21,28,35,40].find(g=>g>=required)||40;
     }
     const hardware=Math.max(0,Number(inp.rigHardware||0));
+    if(!r.preset&&window.GardaTechniques&&inp.rigStyle){
+      const mount=window.GardaTechniques.setup(l,inp);
+      if(mount?.compatible){head=mount.headWeight;return {bodyWeight:r.bodyWeight,headWeight:head,hardwareWeight:hardware,totalWeight:r.bodyWeight+head+hardware,hookType:mount.hookType,preset:false,style:mount.key,styleName:mount.name,leaderCm:mount.leaderCm,techniqueValid:!mount.excessDepth};}
+      if(mount)return {bodyWeight:r.bodyWeight,headWeight:head,hardwareWeight:hardware,totalWeight:r.bodyWeight+head+hardware,hookType:inp.softHook==='weedless'?'weedless':'exposed',preset:false,style:mount.key,styleName:mount.name,leaderCm:0,techniqueValid:false};
+    }
     return {bodyWeight:r.bodyWeight,headWeight:head,hardwareWeight:hardware,totalWeight:r.bodyWeight+head+hardware,hookType:r.preset?r.hookType:(inp.softHook==='weedless'?'weedless':'exposed'),preset:r.preset};
   }
   function rigText(l,inp) {
     if(!soft(l)) return '';
     const r=rigFor(l,inp),kind=r.hookType==='weedless'?'offset anti-incaglio':'amo esposto';
+    if(r.style){
+      const head=r.headWeight?'piombo '+fmt(r.headWeight,1)+' g':'senza piombo';
+      const position=r.style==='dropshot'?' · amo–piombo '+r.leaderCm+' cm':r.style==='carolina'?' · finale '+r.leaderCm+' cm':r.style==='wacky'?' · amo al centro':r.style==='ned'?' · testina mushroom':'';
+      return r.styleName+' · '+head+position+' · '+kind+' · totale '+fmt(r.totalWeight,1)+' g';
+    }
     return `${r.headWeight===null?'Montato':r.headWeight ? 'Piombo '+fmt(r.headWeight,1)+' g' : 'Senza piombo'} · ${kind} · totale ${fmt(r.totalWeight,1)} g`;
   }
   const oldRead=readInputs;
@@ -36,6 +46,8 @@
     for(const [id,fallback] of Object.entries(defaults)){
       const el=$(id);inp[id]=el?(el.tagName==='SELECT'?el.value:(el.value!==''&&Number.isFinite(Number(el.value))?Number(el.value):fallback)):fallback;
     }
+    if($('rigStyle')?.value)inp.rigStyle=$('rigStyle').value;
+    if($('autoRig')?.type==='checkbox')inp.autoRig=$('autoRig').checked;
     inp.rodLength=clamp(inp.rodLength,1.2,4);inp.lineDiameter=clamp(inp.lineDiameter,.06,.5);
     inp.jigHead=clamp(inp.jigHead,0,40);inp.rigHardware=clamp(inp.rigHardware,0,20);
     for(const l of LURES) {l.weight=rigFor(l,inp).totalWeight;l.catalog=`${l.baseCode} · ${l.lengthCm} cm · ${fmt(l.weight,1)} g · ${l.runText}`;}
@@ -97,6 +109,13 @@
     let min=Math.max(0,l.runMin),max=Math.max(min,l.runMax);
     if(soft(l)){
       const r=rigFor(l,inp);
+      if(r.techniqueValid===false)return .02;
+      if(r.style==='dropshot'&&inp.bottomDepth>0){
+        const sinAngle=inp.bottomDepth/Math.hypot(inp.bottomDepth,Math.max(0,inp.dropDistance));
+        const expected=inp.bottomDepth-r.leaderCm/100*sinAngle,gap=Math.abs(d-expected);
+        return gap<=.65?.95:clamp(.95*Math.exp(-(gap-.65)/1.2),.02,.95);
+      }
+      if(r.style==='wacky')return d<=3.5?.88:clamp(.8*Math.exp(-(d-3.5)/.8),.02,.8);
       // Head loading and drag influence control; body mass alone is not a deep-water head.
       const control=r.headWeight/Math.sqrt(Math.max(.7,(l.lengthCm||l.length/10||7)/7));
       max=r.headWeight===null?max:r.headWeight===0?1.2:clamp(1+control*1.2,1.5,30);min=0;
@@ -126,13 +145,14 @@
     const rod=(!inp.rodMin||rig.totalWeight>=inp.rodMin)&&(!inp.rodMax||rig.totalWeight<=inp.rodMax);
     const reasons=[];
     if(!rod)reasons.push('fuori casting canna');
+    if(rig.techniqueValid===false)reasons.push('montaggio non adatto a misura o quota');
     if(inp.dropDistance>cast.max)reasons.push('lancio improbabile');
     else if(inp.dropDistance>cast.min)reasons.push('lancio al limite');
     if(depth<.4)reasons.push('fuori quota');
     const obstructed=inp.structure==='weed'&&inp.weedDensity==='dense'&&snagRisk(l,inp)>.85;
     if(obstructed)reasons.push('amo esposto in erba fitta');
     if(inp.bottomDepth>0&&inp.depth>inp.bottomDepth)reasons.push('quota oltre il fondale');
-    return {rig,cast:cast.middle,castRange:cast,depth,rod,reasons,practical:rod&&cast.max>=inp.dropDistance&&depth>=.4&&!obstructed&&!(inp.bottomDepth>0&&inp.depth>inp.bottomDepth)};
+    return {rig,cast:cast.middle,castRange:cast,depth,rod,reasons,practical:rig.techniqueValid!==false&&rod&&cast.max>=inp.dropDistance&&depth>=.4&&!obstructed&&!(inp.bottomDepth>0&&inp.depth>inp.bottomDepth)};
   }
   function lengthFit(l,inp){
     const ranges={perch:[3,9],chub:[4,7],pike:[10,23],bass:[6,14],zander:[7,15],trout:[5,12],asp:[5,11]};
@@ -168,9 +188,10 @@
   filteredLures=function(inp){
     if(inp.rodMin&&inp.rodMax&&inp.rodMin>inp.rodMax)return [];
     const env=computeEnvironment(inp);
-    return LURES.filter(l=>(inp.makerFilter==='all'||l.maker===inp.makerFilter)&&(inp.catFilter==='all'||l.cat===inp.catFilter)&&(!inp.practicalOnly||assess(l,inp,env).practical));
+    return LURES.filter(l=>(!inp.rigStyle||inp.rigStyle==='auto'||soft(l))&&(inp.makerFilter==='all'||l.maker===inp.makerFilter)&&(inp.catFilter==='all'||l.cat===inp.catFilter)&&(!inp.practicalOnly||assess(l,inp,env).practical));
   };
   retrieveAdvice=function(l,inp,env){
+    if(window.GardaTechniques){const p=window.GardaTechniques.presentation(l,inp,env);return (soft(l)?rigText(l,inp)+'. ':'')+p.summary;}
     const cold=inp.waterTemp<12||env.activity<45;
     let advice;
     if(soft(l)){
