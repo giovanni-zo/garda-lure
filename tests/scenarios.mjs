@@ -1,0 +1,47 @@
+import {context,root} from './selector.mjs';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+for(const file of ['lure-colors.js','fishing-weather.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+file,root),'utf8'),context);
+const result=vm.runInContext(`(()=>{
+ const checks={},base={...DEFAULTS,date:'2026-07-15',hour:13,waterTemp:22,clarity:8,cloud:15,depth:2,dropDistance:12,rodMin:0,rodMax:0,groupFamilies:true,practicalOnly:true,jigHead:5,softHook:'exposed',weedDensity:'sparse'};
+ checks.profiles=LURES.length===144&&window.GardaTypes.keys.every(cat=>LURES.filter(l=>l.cat===cat).length===6);
+ checks.uniqueProfiles=new Set(LURES.map(l=>l.id)).size===144;
+ const softs=LURES.filter(l=>l.cat==='soft swimbait');
+ checks.autoRigScales=window.GardaSelector.rigFor(softs.at(-1),{...base,autoRig:true,depth:9}).headWeight>window.GardaSelector.rigFor(softs[0],{...base,autoRig:true,depth:9}).headWeight;
+ checks.manualRigRespected=window.GardaSelector.rigFor(softs.at(-1),{...base,autoRig:false,jigHead:3}).headWeight===3;
+ checks.bodyMassStable=LURES.every(l=>l.rig.bodyWeight===l.weight);
+ const colors=window.GardaColors,p=(cat,inp)=>colors.pick(LURES.find(l=>l.cat===cat),inp,computeEnvironment(inp));
+ checks.clearMetal=p('spoon',base).key==='silver'&&p('spinner',base).key==='silver';
+ checks.stainedMetal=p('spoon',{...base,clarity:5}).key==='gold';
+ checks.cloudyMetal=p('spinner',{...base,cloud:90}).key==='gold';
+ checks.muddyMetal=p('spoon',{...base,clarity:2}).key==='copper';
+ checks.pikePerch=p('soft swimbait',{...base,target:'pike'}).key==='perch'&&p('glide swimbait',{...base,target:'pike'}).key==='perch';
+ checks.openWaterForage=p('soft swimbait',{...base,target:'pike',forage:'baitfish'}).key==='baitfish';
+ checks.pikeFiretiger=p('glide swimbait',{...base,target:'pike',clarity:2}).key==='firetiger';
+ checks.bassFinesse=p('soft finesse',{...base,target:'bass'}).key==='pumpkin'&&p('soft finesse',{...base,target:'bass',clarity:2}).key==='blackblue';
+ checks.nightSurface=p('topwater',{...base,hour:1}).key==='dark';
+ let cases=0,nonempty=0;
+ for(const target of Object.keys(SPECIES))for(const [date,waterTemp] of [['2026-01-15',8],['2026-04-15',13],['2026-07-15',24],['2026-10-15',17]])for(const clarity of [2,5,8])for(const structure of ['rock','weed','drop']){
+  const inp={...base,target,date,waterTemp,clarity,structure,targetSize:{perch:25,bass:40,chub:35,asp:50,pike:80,zander:55,trout:50}[target],softHook:structure==='weed'?'weedless':'exposed'},env=computeEnvironment(inp);
+  const rows=sortScored(filteredLures(inp).map(l=>({l,s:lureScore(l,inp,env)})),inp);cases++;if(rows.length)nonempty++;
+  checks.scenarioConstraints=checks.scenarioConstraints!==false&&rows.every(r=>r.s.practical&&r.s.rig.totalWeight>=0&&Number.isFinite(r.s.total)&&r.s.total>=0&&r.s.total<=100);
+  checks.scenarioOrder=checks.scenarioOrder!==false&&rows.every((r,i)=>!i||rows[i-1].s.total>=r.s.total);
+  checks.colorDefined=checks.colorDefined!==false&&LURES.every(l=>{const c=colors.pick(l,inp,env);return c.label&&c.alternative.label&&colors.asset(l,c);});
+ }
+ checks.coverage=cases===252&&nonempty===252;
+ const small={...base,target:'pike',targetSize:45},large={...small,targetSize:110};
+ const sw=LURES.filter(l=>l.cat==='soft swimbait');
+ const best=inp=>sw.slice().sort((a,b)=>lureScore(b,inp).sizeFit-lureScore(a,inp).sizeFit)[0].lengthCm;
+ checks.targetSizeChangesBest=best(large)>best(small);
+ const shallow=LURES.filter(l=>l.cat==='deep crank');checks.smallDivesLess=shallow[0].runMax<shallow.at(-1).runMax;
+ const weather={hourly:{time:['2026-07-15T12:00','2026-07-15T13:00'],temperature_2m:[20,24],cloud_cover:[10,40],pressure_msl:[1014,1015],wind_speed_10m:[3,5],wind_direction_10m:[180,225],precipitation:[0,2],weather_code:[0,61]}};
+ checks.weatherExactHour=window.GardaWeather.sample(weather,base).airTemp===24&&window.GardaWeather.sample(weather,base).rain===2;
+ checks.noWrongDay=window.GardaWeather.sample(weather,{...base,date:'2026-08-01'})===null;
+ checks.noMissingWeather=window.GardaWeather.sample({hourly:{time:['2026-07-15T13:00']}},base)===null;
+ const sol=computeEnvironment({...base,date:'2026-10-23'});checks.localSolarTimes=sol.sunrise>7.5&&sol.sunrise<8&&sol.sunset>18&&sol.sunset<18.6;
+ const before=computeEnvironment({...base,date:'2026-10-24'}),after=computeEnvironment({...base,date:'2026-10-25'});checks.dstCorrect=before.sunrise-after.sunrise>.9&&before.sunrise-after.sunrise<1.1;
+ return {checks,cases};
+})()`,context);
+for(const [name,passed] of Object.entries(result.checks))assert.equal(Boolean(passed),true,name);
+console.log(Object.keys(result.checks).length+' extended checks passed across '+result.cases+' fishing scenarios.');

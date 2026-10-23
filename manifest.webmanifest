@@ -1,15 +1,20 @@
 {
-  "name": "Garda Lure Simulator Ultimate",
+  "name": "Garda Lure",
   "short_name": "Garda Lure",
-  "description": "Simulatore per pesca da riva sul Lago di Garda: esche, spot, batimetria stimata e heatmap specie.",
+  "description": "Esche, colori, misure e spot del Garda. Meteo orario e mappe 2D/3D.",
   "lang": "it",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#e9fbff",
-  "theme_color": "#1689aa",
-  "categories": ["sports", "utilities", "navigation", "weather"],
+  "background_color": "#dcecf2",
+  "theme_color": "#d4e8ef",
+  "categories": [
+    "sports",
+    "utilities",
+    "navigation",
+    "weather"
+  ],
   "icons": [
     {
       "src": "icon-192.png",

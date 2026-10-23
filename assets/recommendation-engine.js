@@ -17,7 +17,11 @@
     const r=l.rig||{bodyWeight:l.weight,headWeight:0,catalogWeight:l.weight,preset:false,hookType:'unknown'};
     if(!soft(l)) return {bodyWeight:r.catalogWeight,headWeight:0,hardwareWeight:0,totalWeight:r.catalogWeight,hookType:'treble',preset:true};
     if(r.preset&&r.bodyWeight===null)return {bodyWeight:null,headWeight:r.headWeight,hardwareWeight:Math.max(0,Number(inp.rigHardware||0)),totalWeight:r.catalogWeight+Math.max(0,Number(inp.rigHardware||0)),hookType:r.hookType,preset:true};
-    const head=r.preset?r.headWeight:Math.max(0,Number(inp.jigHead??5));
+    let head=r.preset?r.headWeight:Math.max(0,Number(inp.jigHead??5));
+    if(!r.preset&&inp.autoRig){
+      const required=Math.max(1.5,(Math.max(0,inp.depth-1)/1.2)*Math.sqrt(Math.max(.7,l.lengthCm/7)))+(inp.windSpeed>8?2:0);
+      head=[1.5,2,3,5,7,10,14,18,21,28,35,40].find(g=>g>=required)||40;
+    }
     const hardware=Math.max(0,Number(inp.rigHardware||0));
     return {bodyWeight:r.bodyWeight,headWeight:head,hardwareWeight:hardware,totalWeight:r.bodyWeight+head+hardware,hookType:r.preset?r.hookType:(inp.softHook==='weedless'?'weedless':'exposed'),preset:r.preset};
   }
@@ -39,8 +43,24 @@
   };
   // Keep lunar illumination for the light calculation; remove speculative atmospheric activity bonuses.
   const oldEnvironment=computeEnvironment;
+  function solarTimes(inp){
+    const date=new Date(inp.date+'T12:00:00Z'),year=date.getUTCFullYear();
+    const day=Math.floor((date-Date.UTC(year,0,1))/86400000)+1,days=year%4===0&&(year%100!==0||year%400===0)?366:365;
+    const gamma=2*Math.PI/days*(day-1),rad=Math.PI/180;
+    const eq=229.18*(.000075+.001868*Math.cos(gamma)-.032077*Math.sin(gamma)-.014615*Math.cos(2*gamma)-.040849*Math.sin(2*gamma));
+    const dec=.006918-.399912*Math.cos(gamma)+.070257*Math.sin(gamma)-.006758*Math.cos(2*gamma)+.000907*Math.sin(2*gamma)-.002697*Math.cos(3*gamma)+.00148*Math.sin(3*gamma);
+    const point=typeof MAP_SPOT_COORDS!=='undefined'&&MAP_SPOT_COORDS[inp.location]||{lat:45.66,lon:10.69},lat=point.lat*rad;
+    const ha=Math.acos(clamp(Math.cos(90.833*rad)/(Math.cos(lat)*Math.cos(dec))-Math.tan(lat)*Math.tan(dec),-1,1))/rad;
+    const zone=Number(new Intl.DateTimeFormat('en',{timeZone:'Europe/Rome',timeZoneName:'shortOffset'}).formatToParts(date).find(p=>p.type==='timeZoneName').value.replace('GMT+',''));
+    return {sunrise:(720-4*(point.lon+ha)-eq)/60+zone,sunset:(720-4*(point.lon-ha)-eq)/60+zone};
+  }
   computeEnvironment=function(inp){
-    const env=oldEnvironment(inp),temp=(env.bioTempFit??env.tempScore*100)/100;
+    const env=oldEnvironment(inp),sun=solarTimes(inp);
+    Object.assign(env,sun);env.daylight=inp.hour>=sun.sunrise&&inp.hour<=sun.sunset?1:0;
+    env.sunPeak=env.daylight?Math.sin(Math.PI*(inp.hour-sun.sunrise)/(sun.sunset-sun.sunrise)):0;
+    env.dawnDusk=Math.max(0,1-Math.min(Math.abs(inp.hour-sun.sunrise),Math.abs(inp.hour-sun.sunset))/2.2);
+    env.light=clamp(env.sunPeak*(1-inp.cloud/135)+env.dawnDusk*.28+(1-env.daylight)*(inp.moon/100)*.25,0,1);
+    const temp=(env.bioTempFit??env.tempScore*100)/100;
     const light=['zander','trout','pike'].includes(inp.target)?Math.max(env.dawnDusk,1-env.light):.6+.4*env.dawnDusk;
     env.activity=clamp(100*(.65*temp+.20*seasonalSpeciesScore(inp.target,env.month)+.15*light),5,95);
     return env;
@@ -117,9 +137,12 @@
   function lengthFit(l,inp){
     const ranges={perch:[3,9],chub:[4,7],pike:[10,23],bass:[6,14],zander:[7,15],trout:[5,12],asp:[5,11]};
     let [min,max]=ranges[inp.target]||[4,12];
-    if(inp.target==='perch'&&inp.targetSize>=30)max=12;
-    if(inp.targetSize<20){min*=.7;max*=.75;}
-    return l.lengthCm>=min&&l.lengthCm<=max?1:Math.exp(-Math.abs(l.lengthCm-clamp(l.lengthCm,min,max))/3);
+    const reference={perch:25,chub:35,pike:80,bass:40,zander:55,trout:50,asp:50}[inp.target]||40;
+    const scale=Math.pow(clamp(inp.targetSize/reference,.5,1.8),.65);
+    min*=scale;max*=scale;
+    const center=(min+max)/2,width=(max-min)*.65;
+    if(l.lengthCm>=min&&l.lengthCm<=max)return .85+.15*Math.exp(-Math.pow((l.lengthCm-center)/width,2));
+    return .85*Math.exp(-Math.abs(l.lengthCm-clamp(l.lengthCm,min,max))/Math.max(1.5,3*scale));
   }
   lureScore=function(l,inp,env){
     env=env||computeEnvironment(inp);
@@ -130,8 +153,11 @@
     const style=slow?(soft(l)?.95:l.finesse):.55*l.aggressive+.45*l.finesse;
     const visibility=visibilityFit(l,inp,env),wind=windLureFit({...l,weight:a.rig.totalWeight},inp,env);
     // Species, presentation depth, rig and structure dominate; price has only a tie-breaking role.
-    let total=100*(.25*species+.12*sf+.20*a.depth+.12*castFit+.13*st+.10*style+.06*visibility+.02*(l.qpr/100));
+    let total=100*(.25*species+.12*sf+.20*a.depth+.12*castFit+.13*st+.09*style+.06*visibility+.03*wind);
     total*=Math.sqrt(a.depth)*Math.pow(reach,1.5)*(a.rod?1:.25);
+    const prey=inp.forage||'auto';
+    if(prey==='craw'&&l.cat==='soft creature')total+=3;
+    if(['perch','baitfish'].includes(prey)&&['soft shad','soft swimbait','glide swimbait','floating minnow','sinking minnow','jointed minnow','suspending jerkbait','sinking jerkbait'].includes(l.cat))total+=2;
     total-=risk*7;
     if(inp.shoreOnly)total*=.9+.1*l.shore;
     if(surface(l)&&inp.waterTemp<12)total*=.6;

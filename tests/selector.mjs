@@ -74,3 +74,5 @@ const checks=vm.runInContext(`(()=>{
 })()`,context);
 for(const [name,passed] of Object.entries(checks)) assert.equal(passed,true,name);
 console.log(Object.keys(checks).length+' recommendation regression checks passed.');
+
+export { context, root };

@@ -133,6 +133,16 @@
       "file": "fish-trout.png",
       "subject": "fish trout",
       "sourceGeneratedFile": "/Users/giovannizordan/.codex/generated_images/01a164e8-fc91-7ab2-b368-5db7dec51821/exec-a2f892c6-848e-4c74-a5c1-d2009a548dbf.png"
+    },
+    {
+      "file": "soft-shad-perch.png",
+      "subject": "soft shad in European perch pattern",
+      "prompt": "Preserve exact low-poly geometry, hooks and transparent background. Repaint the body in natural European perch livery: olive back, yellow-green sides crossed by six dark vertical bars, cream belly, subtle orange fins and tail accents. Full isolated side profile facing right. No text, logos or scenery."
+    },
+    {
+      "file": "glide-perch.png",
+      "subject": "two-piece glide bait in European perch pattern",
+      "prompt": "Preserve exact low-poly geometry, hooks and transparent background. Repaint the body in natural European perch livery: olive back, yellow-green sides crossed by six dark vertical bars, cream belly, subtle orange fins and tail accents. Full isolated side profile facing right. No text, logos or scenery."
     }
   ]
 }

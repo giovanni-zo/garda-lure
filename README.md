@@ -1,15 +1,21 @@
-# Garda Lure · versione 6.6
+# Garda Lure · versione 7.2
 
 Interfaccia in italiano per scegliere una tecnica di pesca sul Garda.
 
-- 24 tipi di esca, senza marche, con 72 profili di misura/peso.
+- 24 tipi di esca, senza marche, con 144 profili di misura/peso.
 - Varianti floating, suspending, sinking e deep distinte.
-- 19 illustrazioni low poly di esche (riutilizzate per varianti della stessa
-  sagoma) e 7 pesci. In acqua limpida i colori restano naturali; con acqua
-  velata diventano oro/rame; in acqua torbida chartreuse.
+- 19 sagome low poly di esche e due nuove livree persico (riutilizzate per varianti della stessa
+  sagoma) e 7 pesci. Le livree dipendono da esca, target, foraggio, luce e
+  limpidezza: argento/oro/rame per metalli, persico per swimbait da luccio,
+  perla, firetiger, pumpkin, marrone o nero/blu secondo lo scenario.
 - Flusso: pesce, zona/struttura, giorno/ora, acqua e potenza della canna.
-  Montaggio e piombatura sono automatici; condizioni e quota si possono regolare.
-- Consigli, zone, catalogo per tipi, scheda di dettaglio, mappa 2D e 3D.
+  Specie e taglia sono sempre visibili. Meteo e acqua, quota, distanza, casting
+  esatto, lenza e montaggio sono regolabili; montaggio e piombatura automatici
+  sono disattivabili. Sei dimensioni per ciascun tipo.
+- Consigli con score, classifica completa filtrabile, confronto di tutte le
+  misure, sette componenti del punteggio nella scheda, zone e mappe 2D/3D.
+- Interfaccia ispirata a Liquid Glass, con contrasto, tastiera, movimento ridotto
+  e fallback per browser senza backdrop-filter.
 
 ## Aprire o pubblicare
 
@@ -57,12 +63,22 @@ commerciale. `assets/recommendation-engine.js` gestisce montaggi, profondità,
 casting, vegetazione e ordinamento. `assets/simple-fishing.js` gestisce il nuovo
 flusso visivo; `assets/garda-map.js` gestisce entrambe le viste geografiche.
 
+- `node tests/scenarios.mjs`: 35 controlli di regressione più 25 controlli
+  estesi su 252 scenari e su colori, taglia, meteo orario e cambio ora legale.
 - `node tests/selector.mjs`: 35 controlli su coerenza di montaggi, profondità,
   vincoli canna, alternative e punteggi.
 - `python3 tests/geography.py`: sagoma, Sirmione, isole, griglia e GLB condiviso.
 - Controllata in browser la selezione specie, il catalogo, i dettagli, il cambio
   cromatico e le viste 2D/3D. I controlli non misurano l'efficacia delle catture.
 
-GPS/meteo usa Open-Meteo su richiesta. Le coordinate sono inviate al servizio;
-acqua e trasparenza restano condizioni inserite o stagionali. Gli asset visitati
-vengono conservati offline; il nucleo dell'app e il modello sono precache.
+Il meteo orario usa Open-Meteo su richiesta per la zona scelta, senza necessità
+di GPS. Il GPS sceglie la zona del Garda più vicina; a Open-Meteo vengono inviate
+le coordinate di quella zona, non il punto GPS esatto. Data e ora sono quelle
+dello scenario: il meteo corrente non le sostituisce. Sono mostrati aria,
+pioggia, vento, nuvole e pressione; acqua, torbidità e risacca restano separati.
+La previsione si può personalizzare e la provenienza passa a “Manuale”.
+Alba/tramonto usano le equazioni NOAA e il fuso Europe/Rome.
+
+Regole e fonti: `docs/color-evidence.md`. Prompt e asset: `assets/illustrations/prompts.json`.
+Gli asset visitati vengono conservati offline; il nucleo dell'app e il modello
+sono precache. Il service worker aggiorna gli asset con versione 7.2.
