@@ -18,8 +18,9 @@ Interfaccia in italiano per scegliere una tecnica di pesca sul Garda.
   adattati allo scenario. Il filtro per tecnica serve solo a esplorare i risultati.
 - Flusso: pesce, zona/struttura, giorno/ora, acqua e potenza della canna.
   Specie e taglia sono sempre visibili. Meteo e acqua, quota, distanza, casting
-  esatto, lenza e montaggio sono regolabili; montaggio e piombatura automatici
-  sono disattivabili. Sei dimensioni per ciascun tipo.
+  esatto e lenza sono regolabili. Il montaggio viene consigliato dall’app;
+  la piombatura automatica può essere sostituita con un peso manuale.
+  Sei dimensioni per ciascun tipo, nei limiti del montaggio consigliato.
 - Consigli con score, classifica completa filtrabile, confronto di tutte le
   misure, sette componenti del punteggio nella scheda, zone e mappe 2D/3D.
 - Interfaccia ispirata a Liquid Glass, con contrasto, tastiera, movimento ridotto
