@@ -1,8 +1,10 @@
-# Garda Lure · versione 9.1.1
+# Garda Lure · versione 9.2
 
 Interfaccia in italiano per scegliere una tecnica di pesca sul Garda.
 
-- 25 tipi di esca, senza marche, con 150 profili di misura/peso.
+- 44 tipi di esca: 20 hard bait e 24 combinazioni compatibili di montaggio
+  e gomma, senza marche. Le 150 misure di base generano 244 profili montati
+  e rigidi, con pesi adattati allo scenario.
 - Varianti floating, suspending, sinking e deep distinte.
 - Sagome low poly e 7 pesci. Tredici nuovi asset distinguono palette deep e
   shallow, soft shad costolato, swimbait liscio e gomme senza montaggio fisso.
@@ -15,12 +17,12 @@ Interfaccia in italiano per scegliere una tecnica di pesca sul Garda.
   Le combinazioni gomma + montaggio competono automaticamente con le esche
   rigide nella classifica. Nessuna selezione preventiva del montaggio.
   Ogni scheda contiene tre vignette low poly con recupero, pause e montaggio
-  adattati allo scenario. Il filtro per tecnica serve solo a esplorare i risultati.
+  adattati allo scenario. Il filtro per tipo serve solo a esplorare i risultati.
 - Flusso: pesce, zona/struttura, giorno/ora, acqua e potenza della canna.
   Specie e taglia sono sempre visibili. Meteo e acqua, quota, distanza, casting
   esatto e lenza sono regolabili. L’attività osservata è facoltativa nelle regolazioni avanzate. Il montaggio viene consigliato dall’app;
   la piombatura automatica può essere sostituita con un peso manuale.
-  Sei dimensioni per ciascun tipo, nei limiti del montaggio consigliato.
+  Fino a sei dimensioni per tipo, nei limiti del montaggio consigliato.
 - Consigli con score, classifica completa filtrabile, confronto di tutte le
   misure, sette componenti del punteggio nella scheda, zone e mappe 2D/3D.
 - Interfaccia ispirata a Liquid Glass, con contrasto, tastiera, movimento ridotto
@@ -81,7 +83,7 @@ flusso visivo; `assets/garda-map.js` gestisce entrambe le viste geografiche.
   estesi su 252 scenari e su colori, taglia, meteo orario e cambio ora legale.
 - `node tests/selector.mjs`: 35 controlli su coerenza di montaggi, profondità,
   vincoli canna, alternative e punteggi.
-- `node tests/automatic-recommendations.mjs`: 28 controlli su 147 scenari e
+- `node tests/automatic-recommendations.mjs`: 38 controlli su 147 scenari e
   23.492 combinazioni compatibili: scelta automatica, montaggi distinti,
   peso montato, quota, canna, filtri, identità e apertura delle proposte.
 - `node tests/presentations.mjs`: 25 controlli su 700 guide: tre vignette per
@@ -105,7 +107,7 @@ Regole e fonti: `docs/color-evidence.md`, `docs/presentations.md` e
 `docs/garda-field-checks.md`.
 Prompt e asset: `assets/illustrations/prompts.json` e `v8-prompts.json`.
 Gli asset visitati vengono conservati offline; il nucleo dell'app e il modello
-sono precache. Il service worker aggiorna gli asset con versione 9.1.
+sono precache. Il service worker aggiorna gli asset con versione 9.2.
 
 ## Correzioni 9.1
 
@@ -118,3 +120,12 @@ la fascia alta anche lontano dalla sponda. Il fondale noto resta un limite.
 Il drop shot non è riservato al freddo. Una sola regolazione facoltativa per
 l’attività osservata adatta ricerca, tecnica e recupero. Nel limpido vento o
 tramonto, da soli, non impongono una livrea bianca o nera.
+
+## Tipi di esca 9.2
+
+Ogni montaggio + forma della gomma è un tipo distinto nel catalogo, nel filtro
+e nella classifica: drop shot shad, drop shot worm e drop shot creature non
+condividono una sola riga. Ogni tipo sceglie la misura migliore per lo scenario,
+con score e guida propri; il confronto misure espande le alternative dello
+stesso tipo. La scheda conserva montaggio e forma cambiando dimensione.
+La scelta resta automatica. Le combinazioni incompatibili non vengono create.

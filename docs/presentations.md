@@ -1,4 +1,4 @@
-# Montaggi e recuperi contestuali · v9.1
+# Montaggi e recuperi contestuali · v9.2
 
 Le guide sono euristiche pratiche, non risultati di prove di cattura sul Garda.
 Le tre vignette condividono la stessa forma e livrea della scheda. Le geometrie
@@ -23,9 +23,9 @@ mostrano le relazioni tra gli elementi del montaggio; non sono in scala.
 L’app genera una proposta distinta per ogni combinazione compatibile di gomma,
 misura e montaggio. Confronta questi profili con hard bait, metalli e superficie
 nella stessa classifica. Il montaggio non è un input dell’utente; il filtro
-facoltativo “Esca o tecnica” permette di esplorare un tipo, senza cambiare la
-logica degli altri consigli. Nel catalogo una gomma apre la combinazione più
-adatta, mentre una tecnica apre la sua migliore proposta per lo scenario.
+facoltativo “Tipo di esca” permette di esplorare una combinazione specifica.
+Il catalogo mostra ciascuna combinazione come tipo autonomo e ne apre la
+misura più adatta, conservando montaggio e forma nella scheda.
 
 La compatibilità fisica esclude forme/taglie non ammesse, quote fuori fascia,
 ami esposti in erba fitta, pesi fuori casting e lanci irraggiungibili. Il punteggio
@@ -38,8 +38,9 @@ pontili, Carolina su sabbia/scalino e weightless in acqua bassa con poco vento.
 Le condizioni non impongono un vincitore: canna, peso, distanza e quota possono
 far prevalere un’altra combinazione. Lo score resta un indice euristico.
 
-Di default la classifica mostra la misura e la gomma migliori per ciascun
-montaggio, senza collassare tutte le gomme in una sola riga. “Confronta tutte
+Di default la classifica mostra la misura migliore di ciascuna coppia
+montaggio + forma della gomma. Le gomme diverse sullo stesso montaggio
+rimangono scelte separate, anche nelle tre proposte iniziali. “Confronta tutte
 le misure” espande i profili. I dettagli mantengono la specifica proposta
 selezionata, il suo peso montato e le sue tre vignette; cambiando misura viene
 conservata la tecnica e sono disponibili solo le taglie compatibili.
@@ -91,3 +92,13 @@ Spybait: affondamento controllato e recupero lento continuo, senza twitch;
 la sagoma mostra due piccole eliche e nessuna paletta.
 
 Resoconti locali, condizioni mancanti e limiti: `garda-field-checks.md`.
+
+## Identità dei tipi
+
+`proposalKey` comprende montaggio e categoria della gomma; la dimensione non fa
+parte dell’identità del tipo. `lureTypes` costruisce un catalogo unico condiviso
+dal filtro e dalle schede: 24 tipi montati più 20 hard bait, 244 misure/pesi.
+Le regole di compatibilità restano le stesse: non vengono aggiunte combinazioni
+solo per ottenere un prodotto cartesiano di tutti i montaggi e tutte le gomme.
+I profili conservano l’identificatore della misura e il suffisso del montaggio,
+per risolvere la scheda e la guida senza cambiare automaticamente tecnica.

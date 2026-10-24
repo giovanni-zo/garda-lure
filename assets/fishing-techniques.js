@@ -58,7 +58,16 @@ function candidates(l,inp){
  const keys=inp.rigStyle==='auto'?Object.keys(rigs):[inp.rigStyle];
  return keys.map(key=>profile(l,key)).filter(Boolean);
 }
-function proposalKey(l){return l.rigTechnique?'rig:'+l.rigTechnique:l.cat;}
+function proposalKey(l){return l.rigTechnique?'rig:'+l.rigTechnique+':'+l.cat:l.cat;}
+function lureTypes(lures){
+ const types=new Map();
+ for(const base of lures)for(const l of candidates(base,{rigStyle:'auto'})){
+  const key=proposalKey(l);
+  if(!types.has(key))types.set(key,{key,label:l.family,cat:l.cat,rigTechnique:l.rigTechnique||null,variants:[]});
+  types.get(key).variants.push(l);
+ }
+ return [...types.values()];
+}
 function setup(l,inp){
  if(!isSoft(l))return null;
  const key=choose(l,inp);if(!key)return {key:inp.rigStyle,name:rigs[inp.rigStyle]?.name||'Montaggio',compatible:false};
@@ -202,5 +211,5 @@ function diagram(l,inp,env,plan,phase){
 }
 function render(l,inp,env){const p=presentation(l,inp,env);return `<section id="retrieveGuide" class="retrieve-guide" aria-label="Recupero in tre passaggi"><div class="guide-heading"><div><span class="eyebrow">Per questo scenario</span><h3>${esc(p.name)}</h3><p>${esc(p.context)}${p.fallback?' · Il montaggio scelto non è adatto: qui è illustrata l’alternativa jig head.':''}</p></div><span class="guide-count">3 passaggi</span></div><div class="retrieve-panels">${p.steps.map((s,i)=>`<figure>${diagram(l,inp,env,p,i)}<figcaption><h4><span>${i+1}</span>${esc(s.title)}</h4><p>${esc(s.text)}</p></figcaption></figure>`).join('')}</div></section>`;}
 function catalog(){return `<section class="technique-catalog"><div class="result-heading"><div><span class="eyebrow">Consigliati insieme alle esche</span><h2>Tecniche e montaggi</h2></div></div><div class="technique-grid">${Object.entries(rigs).map(([key,r])=>`<button class="technique-tile" type="button" data-technique="${key}"><span class="technique-glyph" aria-hidden="true">${{jig:'↗',dropshot:'↕',texas:'⌁',carolina:'↔',ned:'⊥',wacky:'∪',weightless:'≈'}[key]}</span><strong>${r.name}</strong><span>${r.description}</span><small>Vedi proposta consigliata ↗</small></button>`).join('')}</div></section>`;}
-window.GardaTechniques={rigs,compatible,choose,suitability,profile,candidates,proposalKey,setup,presentation,render,catalog,approach};
+window.GardaTechniques={rigs,compatible,choose,suitability,profile,candidates,proposalKey,lureTypes,setup,presentation,render,catalog,approach};
 })();

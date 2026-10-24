@@ -234,7 +234,7 @@
     if(inp.rodMin&&inp.rodMax&&inp.rodMin>inp.rodMax)return [];
     const env=computeEnvironment(inp);
     const candidates=window.GardaTechniques?LURES.flatMap(l=>window.GardaTechniques.candidates(l,inp)):LURES;
-    return candidates.filter(l=>(!inp.rigStyle||inp.rigStyle==='auto'||soft(l))&&(inp.makerFilter==='all'||l.maker===inp.makerFilter)&&(inp.catFilter==='all'||l.cat===inp.catFilter||inp.catFilter==='rig:'+l.rigTechnique)&&(!inp.practicalOnly||assess(l,inp,env).practical));
+    return candidates.filter(l=>(!inp.rigStyle||inp.rigStyle==='auto'||soft(l))&&(inp.makerFilter==='all'||l.maker===inp.makerFilter)&&(inp.catFilter==='all'||l.cat===inp.catFilter||inp.catFilter==='rig:'+l.rigTechnique||window.GardaTechniques?.proposalKey(l)===inp.catFilter)&&(!inp.practicalOnly||assess(l,inp,env).practical));
   };
   retrieveAdvice=function(l,inp,env){
     if(window.GardaTechniques){const p=window.GardaTechniques.presentation(l,inp,env);return (soft(l)?rigText(l,inp)+'. ':'')+p.summary;}
@@ -263,7 +263,7 @@
     return parts.join(' · ');
   };
   function method(l){
-    if(l.rigTechnique)return 'rig:'+l.rigTechnique;
+    if(l.rigTechnique)return window.GardaTechniques.proposalKey(l);
     if(soft(l))return 'soft';if(surface(l))return 'surface';if(metal(l))return 'metal';if(l.cat==='spinner')return 'spinner';if(['spinnerbait','chatterbait'].includes(l.cat))return 'cover';if(l.cat.includes('crank'))return 'crank';return 'minnow';
   }
   function selectAlternatives(rows,inp){
