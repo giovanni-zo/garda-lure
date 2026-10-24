@@ -14,6 +14,14 @@ const result=vm.runInContext(`(()=>{
    for(const c of [palette,palette.alternative]){
     const html=art.cover(v,scenario,c);count++;
     checks.valid=checks.valid!==false&&!/undefined|NaN/.test(html);
+    checks.cutawayInEveryCover=checks.cutawayInEveryCover!==false&&html.includes('data-layer="internal-hook"')&&html.includes('data-layer="external-hook"');
+    checks.buriedWireLegible=checks.buriedWireLegible!==false&&html.includes('stroke-dasharray="4 2.2"');
+    checks.pointState=checks.pointState!==false&&html.includes('data-point="'+(['texas','carolina','weightless'].includes(type.rigTechnique)?'protected':'exposed')+'"');
+    const p=art.layout(v,c),jig=art.hookGeometry(p,'jig'),offset=art.hookGeometry(p,'offset'),nose=art.hookGeometry(p,'nose');
+    checks.jigPointAboveBack=checks.jigPointAboveBack!==false&&jig.tip[1]<p.spine&&jig.eye[0]>p.nx;
+    checks.offsetPointBuried=checks.offsetPointBuried!==false&&offset.tip[1]>p.spine&&offset.tip[1]<p.belly;
+    checks.nosePointExposed=checks.nosePointExposed!==false&&nose.tip[1]<p.noseTop;
+    checks.eyeOutsideNose=checks.eyeOutsideNose!==false&&offset.eye[0]>p.nx&&nose.eye[0]>p.nx;
     checks.rigMatches=checks.rigMatches!==false&&html.includes('data-rig="'+type.rigTechnique+'"');
     checks.plasticMatches=checks.plasticMatches!==false&&html.includes('data-plastic="'+v.cat+'"');
     checks.paletteMatches=checks.paletteMatches!==false&&html.includes('data-palette="'+c.key+'"')&&html.includes(c.label.replace(/&/g,'&amp;'));
@@ -30,7 +38,11 @@ const result=vm.runInContext(`(()=>{
  checks.noWeightlessLead=!/data-part="(bullet|jig-head|terminal-sinker|split-shot|mushroom-head)"/.test(coversByRig.weightless);
  checks.wackyShotConditional=!coversByRig.wacky.includes('split-shot')&&art.cover(tech.profile(worm,'wacky'),{...inp,autoRig:false,jigHead:1},{...c,key:'pumpkin'}).includes('split-shot');
  const weedlessJig=art.cover(tech.profile(worm,'jig'),{...inp,softHook:'weedless'},{...c,key:'pumpkin'});
- checks.weedlessJig=weedlessJig.includes('data-hook-type="weedless"')&&!weedlessJig.includes('M249 117 L226 117 L218 98');
+ checks.weedlessJig=weedlessJig.includes('data-hook-type="weedless"')&&weedlessJig.includes('data-point="protected"')&&weedlessJig.includes('data-hook-style="offset"');
+ checks.wackyThroughMiddle=coversByRig.wacky.includes('data-hook-style="wacky"');
+ const scene=art.placed(tech.profile(worm,'dropshot'),inp,{...c,key:'pumpkin'},tech.setup(tech.profile(worm,'dropshot'),inp),170,109);
+ checks.sharedSceneRenderer=scene.markup.includes('data-cutaway="true"')&&scene.markup.includes('data-layer="internal-hook"')&&scene.attach.every(Number.isFinite);
+ const ids=[...covers.map(c=>c.svg).join('').matchAll(/\\bid="([^"]+)"/g)].map(x=>x[1]);checks.uniqueIds=ids.length===covers.length*5&&new Set(ids).size===ids.length;
  const jointed=LURES.find(l=>l.cat==='jointed minnow');checks.jointedRepaint=colors.treatment(jointed,{key:'baitfish'})==='url(#garda-color-baitfish)';
  checks.oliveMask=colors.filterMarkup('baitfish').includes('6 0 -6')&&colors.filterMarkup('baitfish').includes('-6 0 6');
  const swatches=Object.entries(colors.palettes).map(([key,p])=>({title:p.label,key,src:colors.image(jointed,{key}),filter:colors.treatment(jointed,{key})}));
@@ -41,7 +53,7 @@ for(const [name,passed] of Object.entries(result.checks))assert.equal(Boolean(pa
 for(const file of result.filenames)assert.ok(fs.existsSync(new URL(file,root)),file);
 console.log(Object.keys(result.checks).length+' artwork checks passed across '+result.count+' mounted covers.');
 if(process.argv.includes('--preview')){
- const file=new URL('../../output/artwork-9.3.html',import.meta.url);
+ const file=new URL('../../output/artwork-9.4.html',import.meta.url);
  const tile=x=>`<article><div class="picture">${x.svg||`<img src="${x.src}" style="filter:${x.filter}">`}</div><h2>${x.title}</h2>${x.color||''}</article>`;
  fs.writeFileSync(file,`<!doctype html><html><head><meta charset="utf-8"><base href="../garda_lure_pwa_gps_meteo_v2/"><title>Artwork checks · Garda Lure</title><style>body{font:16px system-ui;color:#184f67;background:#d9eef2;margin:30px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}article{background:#ffffffa0;border:1px solid white;border-radius:24px;padding:14px}h2{font-size:15px}.picture{height:190px}.picture>svg,.picture>img{height:100%;width:100%;object-fit:contain}h1{margin-top:35px}</style></head><body><h1>Mounted covers · 24 combinations</h1><div class="grid">${result.covers.map(tile).join('')}</div><h1>Jointed minnow · all palettes</h1><div class="grid">${result.swatches.map(tile).join('')}</div><h1>Other bodies and hardware</h1><div class="grid">${result.extras.map(tile).join('')}</div><script src="./assets/lure-colors.js?v=9.3"></script><script>GardaColors.installFilters()</script></body></html>`);
  console.log('Preview: '+file.pathname);

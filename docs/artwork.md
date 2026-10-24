@@ -1,4 +1,4 @@
-# Color and mounted cover rendering · v9.3
+# Color and mounted cover rendering · v9.4
 
 The color recommendation still comes from `GardaColors.pick`. Cards, detail
 images, alternative colors and retrieve diagrams share the same treatment.
@@ -30,3 +30,23 @@ schematic; their screen spacing and proportions do not indicate dimensions.
 Validation: `node tests/artwork.mjs` checks all mounted profiles in three
 visibility/depth scenarios, including their alternative palettes (744 covers).
 `--preview` writes a local visual comparison page under `output/`.
+
+
+## Cutaway hooks · v9.4
+
+The same complete hook geometry now appears on covers, alternate colors and
+all soft-plastic retrieve scenes. Actual image silhouettes mask the drawing:
+solid shaded steel outside the plastic, a fine dashed shank inside a narrow
+cutaway channel. Point and barb are tapered, rather than rounded line ends.
+Jig shanks enter at the nose and curve out of the back; offset hooks include
+the nose bend, external wide gap and a point just inside the skin. Drop shot
+uses a small nose hook; wacky crosses the worm midpoint. Ned rotates the
+entire threaded assembly so its hook, plastic and mushroom head stay together.
+Landmarks adapt to each plastic's silhouette, including reversed creature
+bodies. The detail image has a compact internal-wire/exposed-point key.
+
+Rigging references checked:
+- [Mustad: nose hooking a drop shot](https://mustad-fishing.com/us/article/4-ways-to-modify-your-dropshot)
+- [Mustad: Texas and wacky placements](https://mustad-fishing.com/us/article/four-rigs-you-need-for-fall)
+- [Texas Parks & Wildlife: illustrated Texas, Carolina and wacky rigs](https://tpwd.texas.gov/publications/pwdpubs/media/fishing_rigs.pdf)
+- [Z-Man: Ned rig](https://zmanfishing.com/pages/ned-rig)

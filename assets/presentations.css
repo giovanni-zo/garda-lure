@@ -10,3 +10,5 @@
 
 /* The same mounted illustration appears on the catalog, advice and detail covers. */
 .lure-art>.rig-cover{width:100%;height:100%;display:block;overflow:visible;filter:drop-shadow(0 7px 6px #37657915)}
+
+.rig-cutaway-key{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;color:#426e85;font-size:10px;margin:0 0 15px}.rig-cutaway-key span{display:inline-flex;align-items:center;gap:6px}.rig-cutaway-key i{width:23px;border-top:2px dashed #35576d;box-shadow:0 0 0 3px #effbff;border-radius:1px}.rig-cutaway-key span+span{color:#65808f}

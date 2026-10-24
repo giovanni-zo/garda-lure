@@ -1,7 +1,7 @@
 // Regressions from the read-only Garda audit. Missing field conditions remain assumptions.
 import {context,root} from './selector.mjs';
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
-for(const f of ['lure-colors.js','fishing-techniques.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+f,root),'utf8'),context);
+for(const f of ['lure-colors.js','fishing-techniques.js','rig-art.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+f,root),'utf8'),context);
 const result=vm.runInContext(`(()=>{
  const api=window.GardaSelector,t=window.GardaTechniques,colors=window.GardaColors;
  const base={...DEFAULTS,date:'2026-10-18',hour:10,target:'perch',targetSize:25,location:'toscolano',structure:'drop',cloud:100,waterTemp:17,depth:4,dropDistance:35,windSpeed:2,clarity:8,rodMin:5,rodMax:25,rodLength:2.4,lineDiameter:.14,autoRig:true,rigStyle:'auto',jigHead:5,rigHardware:0,softHook:'exposed',weedDensity:'sparse',forage:'auto',practicalOnly:true,catFilter:'all',makerFilter:'all'};

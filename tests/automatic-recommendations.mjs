@@ -1,6 +1,6 @@
 import {context,root} from './selector.mjs';
 import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
-for(const f of ['lure-colors.js','fishing-techniques.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+f,root),'utf8'),context);
+for(const f of ['lure-colors.js','fishing-techniques.js','rig-art.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+f,root),'utf8'),context);
 const result=vm.runInContext(`(()=>{
  const api=window.GardaTechniques,selector=window.GardaSelector;
  const base={...DEFAULTS,date:'2026-07-15',hour:13,target:'perch',targetSize:25,waterTemp:22,windSpeed:2,clarity:8,depth:3,dropDistance:8,rodMin:0,rodMax:0,autoRig:true,rigStyle:'auto',jigHead:5,softHook:'exposed',weedDensity:'sparse',forage:'auto',practicalOnly:true,catFilter:'all',makerFilter:'all'};

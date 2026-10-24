@@ -2,7 +2,7 @@ import {context,root} from './selector.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-for(const f of ['lure-colors.js','fishing-techniques.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+f,root),'utf8'),context);
+for(const f of ['lure-colors.js','fishing-techniques.js','rig-art.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+f,root),'utf8'),context);
 const output=vm.runInContext(`(()=>{
  const base={...DEFAULTS,date:'2026-07-15',hour:13,waterTemp:22,cloud:15,clarity:8,depth:3,dropDistance:12,rodMin:0,rodMax:0,practicalOnly:true,autoRig:true,rigStyle:'auto',jigHead:5,softHook:'exposed',weedDensity:'sparse'};
  const api=window.GardaTechniques,checks={},env=computeEnvironment(base),small=LURES.find(l=>l.cat==='soft jerk'&&l.lengthCm===7),worm=LURES.find(l=>l.cat==='soft finesse'&&l.lengthCm===6);
@@ -11,6 +11,7 @@ const output=vm.runInContext(`(()=>{
   const l=LURES.find(l=>l.cat===cat),inp={...base,target,waterTemp,windSpeed,clarity,hour},e=computeEnvironment(inp),p=api.presentation(l,inp,e),html=api.render(l,inp,e);count++;
   checks.threeSteps=checks.threeSteps!==false&&p.steps.length===3&&p.steps.every(s=>s.title&&s.text&&s.action);
   checks.threeScenes=checks.threeScenes!==false&&(html.match(/<svg class="retrieve-scene"/g)||[]).length===3;
+  if(l.cat.includes('soft'))checks.cutawayInEverySoftScene=checks.cutawayInEverySoftScene!==false&&(html.match(/data-layer="internal-hook"/g)||[]).length===3&&(html.match(/data-cutaway="true"/g)||[]).length===3;
   checks.noBrokenContent=checks.noBrokenContent!==false&&!/undefined|NaN/.test(html)&&!html.includes('vicino al corridoi');
  }
  checks.coverage=count===700;
