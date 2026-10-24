@@ -12,12 +12,14 @@ cattura comparative. Il foraggio osservato dall'utente ha precedenza.
   e luce sufficiente; oro con cielo molto coperto o acqua velata; rame/arancio
   con acqua torbida. L'alternativa argento/oro resta visibile nella scheda.
 - Imitazioni di pesce: blu/argento con ventre bianco su sassi e acqua aperta;
-  oliva/perla nel molto limpido e calmo; perla in profondità, poca luce o vento.
+  oliva/perla nel molto limpido e calmo; perla nella combinazione di profondità e scarsa luce. Il vento da solo non
+  sostituisce una livrea naturale in acqua limpida.
   Per il luccio il persico è automatico solo sul bordo delle erbe in acqua
   limpida e relativamente bassa, oppure quando viene segnalato quel foraggio.
   Agone/alborella osservati hanno precedenza. Il luccio nel torbido con grandi
-  swimbait può orientare al firetiger. Di notte lucioperca/perla, altrimenti
-  nero/blu per il contrasto. Hard minnow nel velato: oro/nero con gola arancio.
+  swimbait può orientare al firetiger. Nel buio con acqua velata, lucioperca/perla e
+  nero/blu per il contrasto; nel limpido restano disponibili i naturali.
+  Entro un’ora da alba/tramonto non viene imposto un cambio al nero. Hard minnow nel velato: oro/nero con gola arancio.
 - Gomme finesse: green pumpkin in acqua limpida; nero/blu in acqua torbida o
   di notte. Creature: marrone/gambero nel limpido, nero/blu nel torbido.
 - Spinnerbait e chatterbait: blu/bianco nel limpido e calmo, oliva per il bass
@@ -79,3 +81,12 @@ i marroni e i ventri chiari in sfumature scure e blu, conservando le faccette.
 Le livree native bypassano il filtro. Le barre del persico sono
 parte della bitmap, con sagome separate per shad costolato, swimbait liscio
 e glide. Colore e grafica non cambiano peso o galleggiabilità.
+
+## Verifica locale del 24 ottobre 2026
+
+Il confronto con resoconti del Garda sostiene le livree naturali e alcune
+varianti di contrasto come scelte iniziali, ma non identifica un unico colore
+migliore. Non sono stati attribuiti ai colori coefficienti di efficacia derivati
+dal numero di catture raccontate. Una differenza di luce, vento o quota non
+cancella automaticamente il foraggio osservato nel limpido.
+Vedere `garda-field-checks.md` per le fonti e i casi di confronto.

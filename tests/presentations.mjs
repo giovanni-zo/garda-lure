@@ -13,12 +13,12 @@ const output=vm.runInContext(`(()=>{
   checks.threeScenes=checks.threeScenes!==false&&(html.match(/<svg class="retrieve-scene"/g)||[]).length===3;
   checks.noBrokenContent=checks.noBrokenContent!==false&&!/undefined|NaN/.test(html)&&!html.includes('vicino al corridoi');
  }
- checks.coverage=count===672;
+ checks.coverage=count===700;
  const cold={...base,target:'perch',waterTemp:8,depth:6},warm={...cold,waterTemp:22};
  checks.autoDropShot=api.choose(small,cold)==='dropshot';
  checks.autoChanges=api.choose(small,warm)==='jig';
  const ds={...cold,rigStyle:'dropshot'},r=window.GardaSelector.rigFor(small,ds);
- checks.dropShotWeights=r.style==='dropshot'&&r.totalWeight===r.bodyWeight+r.headWeight+r.hardwareWeight&&r.leaderCm===50;
+ checks.dropShotWeights=r.style==='dropshot'&&r.totalWeight===r.bodyWeight+r.headWeight+r.hardwareWeight&&r.leaderCm===35;
  checks.dropShotBottom=depthFit(small,{...ds,depth:9.5,bottomDepth:10})>.9&&depthFit(small,{...ds,depth:4,bottomDepth:10})<.1;
  checks.offsetTexas=window.GardaSelector.rigFor(small,{...base,rigStyle:'texas',structure:'weed'}).hookType==='weedless';
  checks.carolinaLeader=window.GardaSelector.rigFor(small,{...base,rigStyle:'carolina'}).leaderCm===80;
@@ -37,9 +37,9 @@ const output=vm.runInContext(`(()=>{
  checks.crawTailRigging=api.render(LURES.find(l=>l.cat==='soft creature'),{...base,rigStyle:'texas'},env).includes('data-rig-entry="tail"');
  checks.darkSoftBody=window.GardaColors.filterId('blackblue',worm)!==window.GardaColors.filterId('blackblue',LURES.find(l=>l.cat==='spinnerbait'));
  const spinner=LURES.find(l=>l.cat==='spinnerbait'),color=window.GardaColors.pick(spinner,{...base,clarity:5},env);checks.nativeWhiteChartreuse=window.GardaColors.isNative(spinner,color,window.GardaColors.asset(spinner,color));
- const filenames=new Set();for(const l of LURES)for(const key of Object.keys(window.GardaColors.palettes))filenames.add(window.GardaColors.asset(l,{key}));
+ const filenames=new Set();for(const l of LURES)for(const key of Object.keys(window.GardaColors.palettes))filenames.add(window.GardaColors.image(l,{key}).slice(2).split('?')[0]);
  return {checks,count,filenames:[...filenames]};
 })()`,context);
 for(const [name,passed] of Object.entries(output.checks))assert.equal(Boolean(passed),true,name);
-for(const file of output.filenames)assert.ok(fs.existsSync(new URL('assets/illustrations/'+file+'.png',root)),file);
+for(const file of output.filenames)assert.ok(fs.existsSync(new URL(file,root)),file);
 console.log(Object.keys(output.checks).length+' presentation checks passed across '+output.count+' guides. All referenced artwork exists.');

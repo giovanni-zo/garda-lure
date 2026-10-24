@@ -1,4 +1,4 @@
-# Montaggi e recuperi contestuali · v9.0
+# Montaggi e recuperi contestuali · v9.1
 
 Le guide sono euristiche pratiche, non risultati di prove di cattura sul Garda.
 Le tre vignette condividono la stessa forma e livrea della scheda. Le geometrie
@@ -6,8 +6,8 @@ mostrano le relazioni tra gli elementi del montaggio; non sono in scala.
 
 ## Scelta e compatibilità
 
-- Jig head: gomma solidale alla testina, peso dimensionato per quota e vento.
-- Drop shot: amo sulla lenza sopra il piombo terminale, gomme fino a 12 cm.
+- Jig head: gomma solidale alla testina, peso dimensionato per quota, vento, risacca, corrente e lancio entro il casting.
+- Drop shot: amo sulla lenza sopra il piombo terminale, gomme fino a 12 cm e creature fino a 8 cm.
   Tratto amo–piombo 35–50 cm sulla lenza; con fondale noto il controllo quota
   tiene conto dell’angolo della lenza. Non equivale sempre all’altezza verticale.
 - Texas: piombo bullet davanti alla gomma, amo offset protetto, gomme fino a 17 cm.
@@ -15,7 +15,8 @@ mostrano le relazioni tra gli elementi del montaggio; non sono in scala.
   compatibili fino a 14 cm. Il piombo non è sotto l’esca come nel drop shot.
 - Ned: testina mushroom e finesse/creature corte, massimo 8 cm. L’assetto della
   gomma dipende dalla sua galleggiabilità, non viene garantito verticale.
-- Wacky: worm innescato al centro, senza piombo aggiunto, poca acqua.
+- Wacky: worm innescato al centro, senza piombo o con 1–3 g circa 15 cm sopra
+  l’amo. Il montaggio leggermente piombato può raggiungere 5 m.
 - Weightless: gomma su offset senza zavorra aggiunta, fino a 1,5 m e controllo
   dipendente dal vento. Non applicato alle grandi swimbait.
 
@@ -30,7 +31,8 @@ La compatibilità fisica esclude forme/taglie non ammesse, quote fuori fascia,
 ami esposti in erba fitta, pesi fuori casting e lanci irraggiungibili. Il punteggio
 confronta target, dimensione, quota, struttura, lancio, luce/visibilità e vento.
 Per le gomme il 20% del punteggio iniziale riguarda l’idoneità della tecnica:
-Texas premiato nella vegetazione, drop shot nel freddo con persico/lucioperca,
+Texas premiato nella vegetazione, drop shot con persico/lucioperca anche fuori dal freddo, soprattutto per
+ricerca paziente su scalini e fondo,
 Ned con gomme corte su fondo pulito, wacky per bass nel basso calmo vicino ai
 pontili, Carolina su sabbia/scalino e weightless in acqua bassa con poco vento.
 Le condizioni non impongono un vincitore: canna, peso, distanza e quota possono
@@ -44,6 +46,9 @@ conservata la tecnica e sono disponibili solo le taglie compatibili.
 
 ## Recuperi
 
+L’attività osservata è facoltativa: pochi attacchi allungano le pause, cacciate
+visibili suggeriscono presentazioni più rapide. Senza osservazioni resta una
+stima moderata da stagione e condizioni, non un’indicazione certa di attività.
 Le pause aumentano con acqua fredda e limpida; il vento cambia posizione della
 canna e controllo del lasco. Specie, struttura e profondità cambiano traiettoria
 e cadenza. Le gomme da luccio possono lavorare lineari; quelle per lucioperca
@@ -72,3 +77,17 @@ secondi/centimetri sono punti di partenza da adattare, non misure previste.
 
 Queste fonti descrivono tecniche generali. La combinazione con il Garda è una
 regola dell’app, non una convalida sperimentale specifica per questo lago.
+
+## Correzioni dopo il confronto col Garda
+
+Il piombo viene cercato per ogni gomma e tecnica: si sceglie prima un peso
+controllabile con margine di lancio, poi, se necessario, un peso al limite di
+portata. Nessun peso supera il casting per rendere artificialmente valida una
+proposta; quando non esiste una combinazione valida la proposta viene esclusa.
+Wacky e Ned conservano limiti di zavorra specifici; weightless resta a zero.
+Il wacky piombato mostra anche il piombino nelle tre vignette.
+
+Spybait: affondamento controllato e recupero lento continuo, senza twitch;
+la sagoma mostra due piccole eliche e nessuna paletta.
+
+Resoconti locali, condizioni mancanti e limiti: `garda-field-checks.md`.

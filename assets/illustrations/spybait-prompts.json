@@ -1,0 +1,15 @@
+{
+  "tool": "Built-in ImageGen",
+  "date": "2026-10-24",
+  "assets": [
+    {
+      "file": "spybait-low-poly-v9.png",
+      "references": [
+        "minnow-natural-v8.png",
+        "spintail.png"
+      ],
+      "transparent_background": true,
+      "prompt": "Use case: precise-object-edit / style-transfer.\nAsset type: replacement spybait illustration for the Garda Lure app, matching an existing collection of low-poly 3D lure cutouts.\nInput image 1 is the EDIT TARGET: the blue and silver minnow. Input image 2 is a STYLE REFERENCE for the dimensional faceted low-poly material and metal hardware.\nTransform the minnow in input 1 into a genuine SPYBAIT, preserving the same high-quality three-dimensional low-poly rendering, triangular flat-shaded facets, natural blue back, silver flanks and distinctly white belly, amber eye, and dark metallic treble hooks. Remove the entire clear diving bill: a spybait has NO bill or lip. Add two SMALL thin silver metal propellers mounted on the longitudinal axis: one at the nose facing right and one at the tail facing left. Two separate treble hooks hang beneath the belly and rear underside, distinct from the propellers. Propeller blades must be clearly recognizable little spinning metal fins, much smaller than the body; do not turn the lure into an airplane. A slim realistic fish-shaped hard body, with volume and a slightly three-quarter side view comparable to the original. The body must have many triangulated facets and studio-lit dimensional shading, including on metal parts. Do not produce a flat SVG-like icon or a simple flat polygon outline. Show one single complete lure pointing right, horizontal, centered and filling most of a landscape canvas with enough transparent padding so all hooks and both propellers are fully visible. Actual transparent background, no colored backdrop, no ground plane, no glow, no lettering, logo, labels, watermark, package or scenery. Deliver a PNG with transparency."
+    }
+  ]
+}

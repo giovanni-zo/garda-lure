@@ -3,15 +3,21 @@
 'use strict';
 const rigs={
  jig:{name:'Jig head',short:'Testina piombata',description:'Testina solidale alla gomma; controlla quota e caduta.',cats:['soft shad','soft swimbait','soft jerk','soft finesse','soft creature'],min:0,max:30},
- dropshot:{name:'Drop shot',short:'Gomma sopra il piombo',description:'Amo sulla lenza, piombo terminale sotto: muovi l’esca restando sul punto.',cats:['soft shad','soft jerk','soft finesse'],min:.5,max:22,maxLength:12},
+ dropshot:{name:'Drop shot',short:'Gomma sopra il piombo',description:'Amo sulla lenza, piombo terminale sotto: muovi l’esca restando sul punto.',cats:['soft shad','soft jerk','soft finesse','soft creature'],min:.5,max:22,maxLength:12},
  texas:{name:'Texas rig',short:'Piombo bullet + offset',description:'Piombo davanti all’amo offset, punta protetta tra erbe e ostacoli.',cats:['soft shad','soft swimbait','soft jerk','soft finesse','soft creature'],min:.2,max:15,maxLength:17},
  carolina:{name:'Carolina rig',short:'Piombo separato + finale',description:'Piombo sulla madrelenza, girella e finale: trascina, poi lascia lavorare la gomma.',cats:['soft jerk','soft finesse','soft creature','soft shad'],min:1,max:18,maxLength:14},
  ned:{name:'Ned rig',short:'Testina mushroom + gomma corta',description:'Gomma compatta su testina piatta; piccoli trascinamenti e soste sul fondo.',cats:['soft finesse','soft creature'],min:.5,max:9,maxLength:8},
- wacky:{name:'Wacky rig',short:'Worm innescato al centro',description:'Amo al centro del worm, estremità libere: caduta e tremolii sul posto.',cats:['soft finesse'],min:0,max:3.5,maxLength:16},
+ wacky:{name:'Wacky rig',short:'Worm innescato al centro',description:'Amo al centro del worm; senza piombo o con una piccola zavorra sopra l’amo.',cats:['soft finesse'],min:0,max:5,maxLength:16},
  weightless:{name:'Weightless',short:'Offset senza piombo',description:'Niente zavorra aggiunta: caduta libera e movimenti brevi in poca acqua.',cats:['soft jerk','soft finesse','soft shad'],min:0,max:1.5,maxLength:14}
 };
 const isSoft=l=>l.cat.includes('soft');
-function compatible(l,key){const r=rigs[key];return !!r&&r.cats.includes(l.cat)&&(!r.maxLength||l.lengthCm<=r.maxLength);}
+function compatible(l,key){const r=rigs[key];return !!r&&r.cats.includes(l.cat)&&(!r.maxLength||l.lengthCm<=r.maxLength)&&!(key==='dropshot'&&l.cat==='soft creature'&&l.lengthCm>8);}
+function approach(inp){
+ if(inp.fishActivity==='slow')return 'patient';
+ if(inp.fishActivity==='active')return 'active';
+ const month=Number(String(inp.date||'').slice(5,7));
+ return inp.waterTemp<12||(['perch','zander'].includes(inp.target)&&[3,4,9,10,11].includes(month)&&inp.waterTemp<=20)?'patient':'balanced';
+}
 function choose(l,inp){
  if(!isSoft(l))return null;
  if(l.rigTechnique)return compatible(l,l.rigTechnique)?l.rigTechnique:null;
@@ -33,12 +39,13 @@ function suitability(l,inp){
  const clean=['rock','sand','drop'].includes(inp.structure),weeds=inp.structure==='weed';
  let fit;
  if(key==='jig')fit=.74+(pursuit?.10:0)+(windy?.07:0)+(inp.depth>=4?.05:0)-(cold&&bottomFish?.10:0)-(bass&&calm&&inp.depth<2?.12:0);
- if(key==='dropshot')fit=.64+(cold&&bottomFish?.25:0)+(inp.depth>=2?.08:0)-(pursuit?.20:0)-(inp.structure==='river'?.12:0)-(weeds?.18:0)-(windy?.10:0)-(!cold&&pursuit?.10:0);
+ if(key==='dropshot')fit=.72+(bottomFish?.12:0)+(approach(inp)==='patient'?.12:0)+(inp.depth>=2?.06:0)-(pursuit?.28:0)-(inp.structure==='river'?.12:0)-(weeds?.28:0)-(windy?.04:0);
  if(key==='texas')fit=.60+(weeds?.28:0)+(bass?.08:0)+(inp.target==='pike'?.05:0)-(inp.depth>8?.10:0)-(!weeds&&!bass?.08:0);
  if(key==='carolina')fit=.62+(bass?.16:0)+(['sand','drop'].includes(inp.structure)?.12:0)+(inp.depth>=3?.05:0)-(weeds?.18:0)-(pursuit?.12:0);
  if(key==='ned')fit=.60+(cold?.18:0)+(['bass','perch'].includes(inp.target)?.10:0)+(clean?.10:0)-(weeds?.24:0)-(windy?.10:0)-(inp.depth>6?.12:0)-(pursuit?.16:0);
  if(key==='wacky')fit=.54+(bass?.30:0)+(inp.depth<=2.5?.12:0)+(calm&&inp.structure==='harbor'?.10:0)-(!bass?.18:0)-(windy?.22:0);
  if(key==='weightless')fit=.55+(['bass','chub'].includes(inp.target)?.20:0)+(inp.depth<=1.2?.18:0)+(calm?.08:0)-(windy?.25:0)-(cold?.16:0);
+ if(approach(inp)==='active'&&['dropshot','ned','wacky'].includes(key))fit-=.12;
  return Math.max(.05,Math.min(.98,fit));
 }
 function profile(l,key){
@@ -58,19 +65,17 @@ function setup(l,inp){
  const r=rigs[key],automatic=inp.autoRig===true;
  let weight=Math.max(0,Number(inp.jigHead??5));
  if(automatic){
-  const control=Math.max(1.5,Math.max(0,inp.depth-1)/1.2*Math.sqrt(Math.max(.7,l.lengthCm/7)))+(inp.windSpeed>8?2:0);
-  const required=key==='dropshot'?Math.max(3,control):key==='carolina'?Math.max(5,control):control;
-  const sizes=key==='ned'?[1.5,2,3,4,5,7]:[1.5,2,3,5,7,10,14,18,21,28,35,40];
-  weight=sizes.find(g=>g>=required)||sizes.at(-1);
+  weight=window.GardaSelector.autoHead(l,inp,key);
  }
- if(key==='wacky'||key==='weightless')weight=0;
+ if(key==='weightless')weight=0;
  const protectedHook=key==='texas'||key==='carolina'||key==='weightless'||(key==='jig'&&inp.softHook==='weedless');
- return {key,name:r.name,compatible:true,headWeight:weight,hookType:protectedHook?'weedless':'exposed',leaderCm:key==='dropshot'?(inp.clarity>=7?50:35):key==='carolina'?(inp.clarity>=7?80:50):0,excessDepth:inp.depth>r.max+.5||inp.depth<r.min-.3};
+ return {key,name:r.name,compatible:true,headWeight:weight,hookType:protectedHook?'weedless':'exposed',leaderCm:key==='dropshot'?(inp.clarity>=7&&inp.depth>=7?50:35):key==='carolina'?(inp.clarity>=7?80:50):key==='wacky'&&weight?15:0,excessDepth:inp.depth>r.max+.5||inp.depth<r.min-.3||key==='wacky'&&weight>3};
 }
 function presentation(l,inp,env){
  const cold=inp.waterTemp<12,clear=inp.clarity>=7,windy=inp.windSpeed>=6,night=env.daylight===0;
  const pike=inp.target==='pike',fast=['asp','trout'].includes(inp.target)&&!cold;
- const pause=cold?(clear?'4–6':'2–4'):(clear?'2–3':'1–2');
+ const patient=approach(inp)==='patient',active=approach(inp)==='active';
+ const pause=patient?(clear?'4–6':'3–4'):active?'0,5–1':(clear?'2–3':'1–2');
  const requestedRig=setup(l,inp),fallback=!!requestedRig&&(!requestedRig.compatible||requestedRig.excessDepth);
  const setupRig=fallback?setup({...l,rigTechnique:null},{...inp,rigStyle:'jig'}):requestedRig,key=setupRig?.key;
  const diving=/minnow|jerkbait|crank/.test(l.cat)&&!l.cat.startsWith('sinking');
@@ -92,7 +97,7 @@ function presentation(l,inp,env){
   steps=[step('Appoggia sul pulito','Testina mushroom e gomma corta su sassi piccoli o fondo pulito; evita le fessure profonde.','ned-set'),step('Avanza di pochi centimetri',cold?'Trascina 10–15 cm. Non serve saltare alto: resta a contatto col fondo.':'Piccolo saltello o trascinamento di 15–25 cm, con lenza sotto controllo.','drag',cold?'10–15 cm':'15–25 cm'),step('Lascia lavorare la gomma',`Tieni fermo ${cold?'5–8':'2–4'} s. La posizione della gomma dipende dalla sua galleggiabilità.`, 'ned-pause',cold?'5–8 s':'2–4 s')];
  }else if(key==='wacky'){
   name='Wacky · caduta e tremolii';
-  steps=[step('Innesca al centro','Amo al centro del worm; lascia entrambe le estremità libere e lancia vicino alla cover.','wacky-set'),step('Lascia scendere','Segui la caduta con filo semi-morbido; osserva deviazioni o fermate della lenza.','wacky-fall'),step('Due piccoli tremolii',`Dai due tocchi da 2–5 cm, poi attendi ${pause} s senza trascinare via il worm.`, 'shake',pause+' s')];
+  steps=[step('Innesca al centro',`Amo al centro del worm; estremità libere. ${setupRig.headWeight?'Piombino da '+setupRig.headWeight+' g a '+setupRig.leaderCm+' cm sopra l’amo.':'Senza piombo aggiunto.'}`,'wacky-set'),step('Lascia scendere','Segui la caduta con filo semi-morbido; osserva deviazioni o fermate della lenza.','wacky-fall'),step('Due piccoli tremolii',`Dai due tocchi da 2–5 cm, poi attendi ${pause} s senza trascinare via il worm.`, 'shake',pause+' s')];
  }else if(key==='weightless'){
   name='Weightless · scivola e fermati';
   steps=[step('Lascia affondare da sola',`Niente piombo aggiunto: posa la gomma nella zona scelta (${edge}) e osserva il filo.`, 'fall'),step('Uno o due richiami','Tocchi brevi con lenza appena morbida; fai scartare la gomma senza tirarla come un cucchiaino.','twitch','1–2 tocchi'),step('Caduta in pausa',`Lascia ricadere per ${pause} s. Se vento o quota tolgono controllo, passa a un montaggio piombato.`, 'fall-pause',pause+' s')];
@@ -102,6 +107,9 @@ function presentation(l,inp,env){
  }else if(isSoft(l)){
   name=inp.target==='zander'?'Saltelli bassi e discesa controllata':l.cat==='soft creature'?'Trascina, solleva e aspetta':'Jig head · piccoli saltelli';
   steps=[step('Trova la quota',`Porta il montaggio a circa ${depth} m nella zona scelta (${edge}). Segui la discesa con il filo.`, 'sink',depth+' m'),step(cold?'Solleva appena':'Piccolo saltello',cold?'Movimento di 10–20 cm; fai avanzare la gomma senza staccarla molto dal fondo.':'Solleva 20–40 cm con la canna, poi riprendi solo il filo in eccesso.','hop',cold?'10–20 cm':'20–40 cm'),step('Caduta e pausa',`Accompagna il ritorno con la canna. Pausa ${pause} s; ripeti mantenendo la quota.`, 'fall-pause',pause+' s')];
+ }else if(l.cat==='spybait'){
+  name='Spybait · nuoto lento e continuo';
+  steps=[step('Conta la discesa',`Lascia affondare verso ${depth} m, sopra il fondo o accanto al bordo dell’erba.`, 'sink',depth+' m'),step('Fai girare le eliche','Recupera lento e regolare: le due piccole eliche devono lavorare senza twitch o strattoni.','steady','Lento'),step('Mantieni la fascia','Conserva la stessa cadenza; rallenta appena o accompagna una breve discesa quando perdi quota.','steady','Continuo')];
  }else if(['suspending jerkbait','deep jerkbait'].includes(l.cat)){
   name=l.cat==='deep jerkbait'?'Deep jerk · scendi, richiama, sospendi':'Jerkbait · twitch e pausa';
   steps=[step('Porta in profondità',l.cat==='deep jerkbait'?`Fai 5–8 giri regolari per far lavorare la paletta lunga; resta nella fascia dei ${depth} m.`:`Due o tre giri per caricare la paletta e portare l’esca nella sua fascia.`, 'dive',depth+' m'),step('Richiami corti',cold?'Uno o due richiami morbidi di 10–20 cm; riporta la punta verso l’esca.':'Uno o due twitch brevi; lascia un poco di lasco dopo ogni scatto.','twitch',cold?'10–20 cm':'1–2 twitch'),step('Lascia sospendere',`Pausa iniziale ${pause} s. Con vento ${windy?'recupera la pancia del filo':'evita di trascinare l’esca'}; verifica l’assetto reale in acqua.`, 'suspend',pause+' s')];
@@ -110,7 +118,7 @@ function presentation(l,inp,env){
   steps=[step('Fai entrare la paletta',`Recupero regolare lungo ${edge}, senza forzare sotto la fascia di lavoro.`, 'dive'),step('Nuoto breve',fast?'Alterna 3–5 giri regolari a una piccola accelerazione.':'Alterna 2–4 giri lenti a un richiamo corto della punta.','steady',cold?'Lento':'Regolare'),step('Ferma e fai risalire',`Stop ${pause} s: il floating tende a risalire. Riparti prima che entri negli ostacoli.`, 'rise',pause+' s')];
  }else if(['sinking minnow','sinking jerkbait'].includes(l.cat)){
   name='Sinking · conta, recupera, controlla';
-  steps=[step('Conta la discesa',`Trova il conteggio che porta l’esca verso ${depth} m. Conta di nuovo a ogni lancio.`, 'sink',depth+' m'),step('Recupera nella fascia',fast?'Recupero sostenuto con accelerazioni brevi, lungo la fascia del foraggio.':`Recupero ${cold?'lento':'regolare'} con piccoli richiami, lungo ${edge}.`,'steady',fast?'Sostenuto':cold?'Lento':'Regolare'),step('Pausa corta controllata','Quando ti fermi lo sinking scende: accompagna il filo e riparti prima di toccare gli ostacoli.','fall-pause',cold?'1–3 s':'1 s')];
+  steps=[step('Conta la discesa',`Trova il conteggio che porta l’esca verso ${depth} m. Conta di nuovo a ogni lancio.`, 'sink',depth+' m'),step('Recupera nella fascia',fast||active?'Recupero sostenuto con accelerazioni brevi, lungo la fascia del foraggio.':`Recupero ${patient?'lento':'regolare'} con piccoli richiami, lungo ${edge}.`,'steady',fast||active?'Sostenuto':patient?'Lento':'Regolare'),step('Pausa corta controllata','Quando ti fermi lo sinking scende: accompagna il filo e riparti prima di toccare gli ostacoli.','fall-pause',patient?'1–3 s':'1 s')];
  }else if(['crankbait','deep crank'].includes(l.cat)){
   name=l.cat==='deep crank'?'Deep crank · paletta in lavoro':'Crank · nuoto e stop';
   steps=[step(l.cat==='deep crank'?'Fai scendere la paletta':'Entra nella fascia',l.cat==='deep crank'?`Giri regolari per caricare la paletta lunga; cerca la fascia dei ${depth} m, senza arare i massi.`:'Carica la paletta corta e lavora sopra gli ostacoli del primo scalino.','dive',depth+' m'),step('Recupera costante',`Cadenza ${cold?'lenta':'media'}: senti la vibrazione. Tieni la canna ${windy?'bassa per ridurre il filo al vento':'orientata lungo la traiettoria'}.`,'steady',cold?'Lento':'Medio'),step('Stop per liberare','Su contatto leggero, smetti di forzare e lascia risalire il floating; riparti quando sei libero.','rise','Stop breve')];
@@ -152,7 +160,7 @@ function geometry(plan,phase){
  if(key==='dropshot'){const x=phase===2?200:170;return {x,y:109,line:`M320 24 L${x+54} 109 L${x+40} 171`,sinker:[x+40,171],mount:'drop'};}
  if(key==='carolina'){const x=phase===1?173:143;return {x,y:142,line:`M320 26 L${x+106} 163 L${x+54} 142`,sinker:[x+106,163],mount:'carolina'};}
  if(key==='ned')return {x:185,y:144,line:'M320 26 L201 163',sinker:[201,163],mount:'ned'};
- if(key==='wacky')return {x:173,y:phase===0?80:132,line:'M320 25 Q263 40 174 '+(phase===0?80:132),mount:'wacky'};
+ if(key==='wacky'){const y=phase===0?80:132;return {x:173,y,line:`M320 25 L230 ${y-32} L174 ${y}`,sinker:plan.rig.headWeight?[230,y-32]:null,mount:'wacky'};}
  let y=action.includes('surface')||action==='pop'?50:action==='sink'||action==='dive'?(phase===0?115:122):action==='hop'?96:action==='rise'?94:130;
  return {x:183,y,line:key==='texas'?`M320 25 L249 ${y+2}`:key==='jig'?`M320 25 L235 ${y+2}`:key==='weightless'?`M320 25 L235 ${y+2}`:`M320 25 ${action==='twitch'||action==='suspend'?'Q265 25 227 '+y:'L227 '+y}`,mount:key==='texas'?'texas':key==='jig'?'jig':key==='weightless'?'offset':null};
 }
@@ -177,7 +185,7 @@ function diagram(l,inp,env,plan,phase){
  else motion=arrow(`M87 ${surface?47:105} L147 ${surface?47:105}`);
  const weeds=inp.structure==='weed'?'<g fill="#438d69"><path d="M48 174 Q25 142 40 117 Q36 150 55 174Z"/><path d="M58 176 Q48 117 65 91 Q58 136 67 175Z"/><path d="M72 174 Q67 137 87 111 Q78 146 81 174Z"/></g>':'';
  const rocks=inp.structure==='sand'?'':'<g><path d="M19 180 L33 148 L65 151 L85 180Z" fill="#a9b2a3"/><path d="M33 148 L51 170 L65 151Z" fill="#d5dac9"/><path d="M51 170 L85 180 L65 151Z" fill="#7f958b"/><path d="M257 183 L280 154 L304 165 L326 186Z" fill="#b8c0ac"/><path d="M280 154 L287 183 L304 165Z" fill="#8ba697"/></g>';
- const softImage=(x,y,h)=>{const img=`<image href="./assets/illustrations/${asset}.png?v=9.0" x="${x}" y="${y}" width="116" height="${h}" preserveAspectRatio="xMidYMid meet" style="filter:${filter}"/>`;return l.cat==='soft creature'?`<g data-rig-entry="tail" transform="translate(${2*(x+58)} 0) scale(-1 1)">${img}</g>`:img;};
+ const softImage=(x,y,h)=>{const img=`<image href="${window.GardaColors.image(l,c)}" x="${x}" y="${y}" width="116" height="${h}" preserveAspectRatio="xMidYMid meet" style="filter:${filter}"/>`;return l.cat==='soft creature'?`<g data-rig-entry="tail" transform="translate(${2*(x+58)} 0) scale(-1 1)">${img}</g>`:img;};
  let lure=softImage(g.x-62,g.y-25,56);
  if(g.mount==='ned')lure=`<g transform="rotate(78 202 165)">${softImage(86,138,50)}</g>`;
  let rig='';
@@ -194,5 +202,5 @@ function diagram(l,inp,env,plan,phase){
 }
 function render(l,inp,env){const p=presentation(l,inp,env);return `<section id="retrieveGuide" class="retrieve-guide" aria-label="Recupero in tre passaggi"><div class="guide-heading"><div><span class="eyebrow">Per questo scenario</span><h3>${esc(p.name)}</h3><p>${esc(p.context)}${p.fallback?' · Il montaggio scelto non è adatto: qui è illustrata l’alternativa jig head.':''}</p></div><span class="guide-count">3 passaggi</span></div><div class="retrieve-panels">${p.steps.map((s,i)=>`<figure>${diagram(l,inp,env,p,i)}<figcaption><h4><span>${i+1}</span>${esc(s.title)}</h4><p>${esc(s.text)}</p></figcaption></figure>`).join('')}</div></section>`;}
 function catalog(){return `<section class="technique-catalog"><div class="result-heading"><div><span class="eyebrow">Consigliati insieme alle esche</span><h2>Tecniche e montaggi</h2></div></div><div class="technique-grid">${Object.entries(rigs).map(([key,r])=>`<button class="technique-tile" type="button" data-technique="${key}"><span class="technique-glyph" aria-hidden="true">${{jig:'↗',dropshot:'↕',texas:'⌁',carolina:'↔',ned:'⊥',wacky:'∪',weightless:'≈'}[key]}</span><strong>${r.name}</strong><span>${r.description}</span><small>Vedi proposta consigliata ↗</small></button>`).join('')}</div></section>`;}
-window.GardaTechniques={rigs,compatible,choose,suitability,profile,candidates,proposalKey,setup,presentation,render,catalog};
+window.GardaTechniques={rigs,compatible,choose,suitability,profile,candidates,proposalKey,setup,presentation,render,catalog,approach};
 })();

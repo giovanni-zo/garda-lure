@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 for(const file of ['lure-colors.js','fishing-weather.js','fishing-techniques.js'])vm.runInContext(fs.readFileSync(new URL('assets/'+file,root),'utf8'),context);
 const result=vm.runInContext(`(()=>{
  const checks={},base={...DEFAULTS,date:'2026-07-15',hour:13,waterTemp:22,clarity:8,cloud:15,depth:2,dropDistance:12,rodMin:0,rodMax:0,groupFamilies:true,practicalOnly:true,jigHead:5,softHook:'exposed',weedDensity:'sparse'};
- checks.profiles=LURES.length===144&&window.GardaTypes.keys.every(cat=>LURES.filter(l=>l.cat===cat).length===6);
- checks.uniqueProfiles=new Set(LURES.map(l=>l.id)).size===144;
+ checks.profiles=LURES.length===150&&window.GardaTypes.keys.every(cat=>LURES.filter(l=>l.cat===cat).length===6);
+ checks.uniqueProfiles=new Set(LURES.map(l=>l.id)).size===150;
  const softs=LURES.filter(l=>l.cat==='soft swimbait');
  checks.autoRigScales=window.GardaSelector.rigFor(softs.at(-1),{...base,autoRig:true,depth:9}).headWeight>window.GardaSelector.rigFor(softs[0],{...base,autoRig:true,depth:9}).headWeight;
  checks.manualRigRespected=window.GardaSelector.rigFor(softs.at(-1),{...base,autoRig:false,jigHead:3}).headWeight===3;

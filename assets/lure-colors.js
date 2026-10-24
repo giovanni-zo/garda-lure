@@ -19,7 +19,8 @@ const palettes={
 };
 const metals=new Set(['spinner','spoon','spintail','blade bait','vertical jig']);
 function pick(l,inp,env){
- const night=env.daylight===0,dim=env.light<.22,murky=inp.clarity<4,stained=inp.clarity<7;
+ const twilight=Math.min(Math.abs(inp.hour-env.sunrise),Math.abs(inp.hour-env.sunset))<1;
+ const night=env.daylight===0&&!twilight,dim=env.light<.22,murky=inp.clarity<4,stained=inp.clarity<7;
  const forage=inp.forage||'auto',windy=inp.windSpeed>=6,deep=inp.depth>=7;
  const swimbait=['soft swimbait','glide swimbait','soft shad'].includes(l.cat);
  let key,alternative,reason;
@@ -37,13 +38,13 @@ function pick(l,inp,env){
   alternative=key==='chartreuse'?(murky?'blackblue':'baitfish'):'chartreuse';
   reason=key==='chartreuse'?'Con velatura o riva mossa partirei da skirt bianco/chartreuse, con metallo neutro.':key==='blackblue'?'Con poca luce sceglierei skirt nero/blu, conservando il riflesso delle palette.':'Nel limpido terrei uno skirt chiaro e naturale, con dorso a contrasto e palette argento.';
  }else{
-  if(night)key=inp.target==='zander'?'pearl':'blackblue';
+  if(night&&stained)key=inp.target==='zander'?'pearl':'blackblue';
   else if(murky)key=inp.target==='pike'&&swimbait?'firetiger':'chartreuse';
   else if(stained)key=/minnow|jerkbait/.test(l.cat)?'goldfish':'pearl';
   else if(forage==='perch'&&swimbait)key='perch';
   else if(forage==='baitfish')key='baitfish';
   else if(forage==='auto'&&inp.target==='pike'&&swimbait&&inp.structure==='weed'&&inp.depth<5&&!windy)key='perch';
-  else if(deep||dim||windy)key='pearl';
+  else if(deep&&dim&&!twilight)key='pearl';
   else if(inp.clarity>=9&&!windy)key='ayu';
   else key='baitfish';
   alternative=key==='baitfish'?(inp.structure==='weed'&&swimbait?'perch':'ayu'):key==='perch'?'baitfish':key==='ayu'?'baitfish':key==='firetiger'?'pearl':key==='goldfish'?'pearl':key==='blackblue'?'pearl':key==='pearl'?(stained||murky?'chartreuse':'baitfish'):'pearl';
@@ -62,10 +63,12 @@ function asset(l,c){
  return base;
 }
 function isNative(l,c,filename){
+ if(l.cat==='spybait'&&c.key==='baitfish')return true;
  if(c.key==='perch'&&/perch/.test(filename))return true;
  if(c.key==='chartreuse'&&/white-chartreuse/.test(filename))return true;
  return c.key==='baitfish'&&['minnow-natural-v8','jerkbait-deep-v8','crankbait-deep-v8','crankbait-shallow-v8','soft-shad-bare-v8','soft-swimbait-v8','soft-jerk-bare-v8'].includes(filename)||c.key==='craw'&&filename==='creature-bare-v8'||c.key==='pumpkin'&&filename==='worm-bare-v8';
 }
+function image(l,c){return './assets/illustrations/'+asset(l,c)+'.png'+'?v=9.1';}
 function filterId(key,l){return 'garda-color-'+key+(key==='blackblue'&&l?.cat.includes('soft')?'-body':'');}
 function installFilters(){
  if(!document.createElementNS||document.getElementById('gardaColorFilters'))return;
@@ -79,5 +82,5 @@ function installFilters(){
   return `<filter id="${filterId(key)}" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">${mask}<feComposite in="mask" in2="SourceAlpha" operator="in" result="limitedmask"/><feColorMatrix in="SourceGraphic" type="matrix" values="${paint}" result="paint"/><feComposite in="paint" in2="limitedmask" operator="in" result="repainted"/><feComposite in="SourceGraphic" in2="limitedmask" operator="out" result="unchanged"/><feMerge><feMergeNode in="unchanged"/><feMergeNode in="repainted"/></feMerge></filter>`;
  }).join('')+'<filter id="garda-color-blackblue-body" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="linear" slope=".18" intercept=".06"/><feFuncG type="linear" slope=".27" intercept=".08"/><feFuncB type="linear" slope=".43" intercept=".14"/></feComponentTransfer></filter></defs>';document.body.appendChild(svg);
 }
-window.GardaColors={palettes,pick,asset,isNative,filterId,installFilters};
+window.GardaColors={palettes,pick,asset,image,isNative,filterId,installFilters};
 })();

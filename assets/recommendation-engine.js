@@ -1,10 +1,10 @@
-/* Garda Lure v5. Domain rules are heuristics; evidence and limits live in project docs. */
+/* Garda Lure v9.1. Domain rules are heuristics; evidence and limits live in project docs. */
 (function () {
   'use strict';
   const soft = l => l.cat.includes('soft');
   const surface = l => ['topwater','buzzbait','crawler'].includes(l.cat);
   const metal = l => ['spintail','blade bait','vertical jig','lipless vibration','spoon'].includes(l.cat);
-  const defaults = {rodLength:2.4,lineDiameter:.14,jigHead:5,rigHardware:0,softHook:'exposed',weedDensity:'sparse',bottomDepth:0};
+  const defaults = {rodLength:2.4,lineDiameter:.14,jigHead:5,rigHardware:0,softHook:'exposed',weedDensity:'sparse',bottomDepth:0,fishActivity:'auto'};
   Object.assign(DEFAULTS,defaults);
   for (const l of LURES) {
     const head = String(l.code).match(/\+(jig|texas)(\d+(?:\.\d+)?)/i);
@@ -19,8 +19,7 @@
     if(r.preset&&r.bodyWeight===null)return {bodyWeight:null,headWeight:r.headWeight,hardwareWeight:Math.max(0,Number(inp.rigHardware||0)),totalWeight:r.catalogWeight+Math.max(0,Number(inp.rigHardware||0)),hookType:r.hookType,preset:true};
     let head=r.preset?r.headWeight:Math.max(0,Number(inp.jigHead??5));
     if(!r.preset&&inp.autoRig){
-      const required=Math.max(1.5,(Math.max(0,inp.depth-1)/1.2)*Math.sqrt(Math.max(.7,l.lengthCm/7)))+(inp.windSpeed>8?2:0);
-      head=[1.5,2,3,5,7,10,14,18,21,28,35,40].find(g=>g>=required)||40;
+      head=autoHead(l,inp,'jig');
     }
     const hardware=Math.max(0,Number(inp.rigHardware||0));
     if(!r.preset&&window.GardaTechniques&&(inp.rigStyle||l.rigTechnique)){
@@ -35,7 +34,7 @@
     const r=rigFor(l,inp),kind=r.hookType==='weedless'?'offset anti-incaglio':'amo esposto';
     if(r.style){
       const head=r.headWeight?'piombo '+fmt(r.headWeight,1)+' g':'senza piombo';
-      const position=r.style==='dropshot'?' · amo–piombo '+r.leaderCm+' cm':r.style==='carolina'?' · finale '+r.leaderCm+' cm':r.style==='wacky'?' · amo al centro':r.style==='ned'?' · testina mushroom':'';
+      const position=r.style==='dropshot'?' · amo–piombo '+r.leaderCm+' cm':r.style==='carolina'?' · finale '+r.leaderCm+' cm':r.style==='wacky'?' · amo al centro'+(r.headWeight?' · piombo '+r.leaderCm+' cm sopra l’amo':''):r.style==='ned'?' · testina mushroom':'';
       return r.styleName+' · '+head+position+' · '+kind+' · totale '+fmt(r.totalWeight,1)+' g';
     }
     return `${r.headWeight===null?'Montato':r.headWeight ? 'Piombo '+fmt(r.headWeight,1)+' g' : 'Senza piombo'} · ${kind} · totale ${fmt(r.totalWeight,1)} g`;
@@ -74,33 +73,72 @@
     env.light=clamp(env.sunPeak*(1-inp.cloud/135)+env.dawnDusk*.28+(1-env.daylight)*(inp.moon/100)*.25,0,1);
     const temp=(env.bioTempFit??env.tempScore*100)/100;
     const light=['zander','trout','pike'].includes(inp.target)?Math.max(env.dawnDusk,1-env.light):.6+.4*env.dawnDusk;
-    env.activity=clamp(100*(.65*temp+.20*seasonalSpeciesScore(inp.target,env.month)+.15*light),5,95);
+    // Temperature and light describe opportunity, not observed feeding behaviour.
+    env.activity=inp.fishActivity==='slow'?25:inp.fishActivity==='active'?85:clamp(100*(.25+.30*temp+.15*seasonalSpeciesScore(inp.target,env.month)+.10*light),25,80);
     return env;
   };
   const oldHabitat=estimatedHabitat;
   estimatedHabitat=function(inp){
     const h=oldHabitat(inp),m=dateParts(inp.date).month,cold=inp.waterTemp<=11||[11,12,1,2].includes(m);
+    const lower=(LOCATIONS[inp.location].basin||'').includes('basso');
+    const edge=['drop','cliff'].includes(inp.structure),midday=inp.hour>=10&&inp.hour<=17;
     if(inp.target==='perch'){
       let lo=cold?5:1,hi=cold?12:4;
       if(inp.structure==='drop'||inp.structure==='cliff'){lo+=cold?2:1;hi+=cold?4:2;}
       if(inp.structure==='sand'||inp.structure==='weed'){lo=cold?3:.8;hi=cold?8:3.5;}
-      if((LOCATIONS[inp.location].basin||'').includes('basso')){lo*=.8;hi*=.8;}
-      h.rangeMin=+lo.toFixed(1);h.rangeMax=+hi.toFixed(1);h.depth=+((lo+hi)/2).toFixed(1);
+      const summer=inp.waterTemp>=21&&[5,6,7,8,9].includes(m);
+      if(!cold&&edge&&!lower){lo=summer?3:2;hi=summer?15:10;if(summer&&midday&&inp.clarity>=7)lo=5;}
+      if(inp.fishActivity==='active'&&!cold){lo=Math.min(lo,1);hi=Math.min(hi,edge?8:4);}
+      if(lower){lo*=.8;hi*=.8;}
+      const sizeShift=clamp((inp.targetSize-25)/40,-.15,.35);
+      const position=clamp(.45+sizeShift+(midday&&inp.clarity>=7?.10:0)-(inp.fishActivity==='active'?.20:0),.2,.8);
+      h.rangeMin=+lo.toFixed(1);h.rangeMax=+hi.toFixed(1);h.depth=+(lo+(hi-lo)*position).toFixed(1);
+      if(summer&&edge&&!lower)h.distance=Math.max(h.distance,midday?30:25);
       h.layer=cold?'scalino e fasce profonde':'littorale e primo scalino';
+      if(summer&&edge&&!lower)h.layer='scalino e fascia profonda, risalendo verso il foraggio';
+    }
+    if(inp.target==='trout'&&inp.waterTemp<=12&&[11,12,1,2,3].includes(m)){
+      h.rangeMin=.2;h.rangeMax=2.5;h.depth=midday?1.6:.8;
+      h.layer='fascia alta e passaggio del pesce foraggio';
+      if(!['harbor','river'].includes(inp.structure))h.distance=Math.max(h.distance,inp.clarity>=7?40:30);
     }
     if(inp.target==='zander' && inp.hour>8 && inp.hour<18){h.rangeMin=Math.max(h.rangeMin,4);h.rangeMax=Math.max(h.rangeMax,10);h.depth=(h.rangeMin+h.rangeMax)/2;}
     if(inp.bottomDepth>0){h.rangeMax=Math.min(h.rangeMax,inp.bottomDepth);h.rangeMin=Math.min(h.rangeMin,h.rangeMax);h.depth=Math.min(h.depth,h.rangeMax);}
     h.rangeMin=+clamp(h.rangeMin,.1,30).toFixed(1);h.rangeMax=+clamp(h.rangeMax,h.rangeMin,30).toFixed(1);h.depth=+clamp(h.depth,h.rangeMin,h.rangeMax).toFixed(1);
+    h.explanation=`${SPECIES[inp.target].label}: ${h.layer}. ${h.rangeMin}–${h.rangeMax} m, prima quota ${h.depth} m.`;
     return h;
   };
   const oldCast=estimateCast;
-  function castRange(l,inp,env){
-    const r=rigFor(l,inp),reference={...l,weight:r.totalWeight};
+  const headCache=new WeakMap();
+  function castAtWeight(l,inp,env,weight){
+    const reference={...l,weight};
     const rod=clamp((Number(inp.rodLength)||2.4)/2.4,.65,1.4),line=clamp(1-(Number(inp.lineDiameter||.14)-.14)*1.3,.55,1.12);
     const middle=clamp(oldCast(reference,inp,env)*Math.sqrt(rod)*line,3,125);
     const spread=.25+clamp(inp.windSpeed/80,0,.18);
     return {min:Math.max(2,middle*(1-spread)),max:middle*(1+spread),middle};
   }
+  function autoHead(l,inp,key){
+    if(key==='weightless')return 0;
+    const stamp=[inp.depth,inp.dropDistance,inp.rodMin,inp.rodMax,inp.rodLength,inp.lineDiameter,inp.windSpeed,inp.windDir,inp.waves,inp.structure,inp.rigHardware,inp.location].join('|');
+    let cached=headCache.get(inp);
+    if(!cached||cached.stamp!==stamp){cached={stamp,env:computeEnvironment(inp),weights:new Map()};headCache.set(inp,cached);}
+    const cacheKey=[l.id,key,l.rig?.bodyWeight,l.aero].join('|');
+    if(cached.weights.has(cacheKey))return cached.weights.get(cacheKey);
+    const body=l.rig?.bodyWeight??l.weight,hardware=Math.max(0,Number(inp.rigHardware||0));
+    const control=Math.max(1.5,Math.max(0,inp.depth-1)/1.2*Math.sqrt(Math.max(.7,l.lengthCm/7)));
+    const weather=Math.max(0,inp.windSpeed-2)*.30+Math.max(0,(inp.waves||0)-1)*.7+(inp.structure==='river'?1.5:0);
+    const required=key==='wacky'?(inp.depth>2?1:0):Math.max(key==='dropshot'?3:key==='carolina'?5:1.5,control+weather);
+    const sizes=key==='wacky'?[0,1,1.5,2,3]:key==='ned'?[1.5,2,3,4,5,7]:[1.5,2,3,5,7,10,14,18,21,28,35,40];
+    const env=cached.env,distance=Math.max(0,Number(inp.dropDistance)||0);
+    const allowed=sizes.filter(g=>g>=required&&(!inp.rodMin||body+g+hardware>=inp.rodMin)&&(!inp.rodMax||body+g+hardware<=inp.rodMax));
+    // Prefer the lightest controllable setup with a casting margin, without enlarging the bait.
+    let weight=allowed.find(g=>{const cast=castAtWeight(l,inp,env,body+g+hardware);return (cast.middle+cast.max)/2>=distance;});
+    weight??=allowed.find(g=>castAtWeight(l,inp,env,body+g+hardware).max>=distance);
+    weight??=allowed.at(-1)??sizes.find(g=>g>=required)??sizes.at(-1);
+    cached.weights.set(cacheKey,weight);
+    return weight;
+  }
+  function castRange(l,inp,env){return castAtWeight(l,inp,env,rigFor(l,inp).totalWeight);}
   estimateCast=(l,inp,env)=>castRange(l,inp,env).middle;
   depthFit=function(l,inp){
     const d=inp.depth;
@@ -115,7 +153,7 @@
         const expected=inp.bottomDepth-r.leaderCm/100*sinAngle,gap=Math.abs(d-expected);
         return gap<=.65?.95:clamp(.95*Math.exp(-(gap-.65)/1.2),.02,.95);
       }
-      if(r.style==='wacky')return d<=3.5?.88:clamp(.8*Math.exp(-(d-3.5)/.8),.02,.8);
+      if(r.style==='wacky'){const max=r.headWeight?5:3.5;return d<=max?.95:clamp(.8*Math.exp(-(d-max)/.8),.02,.8);}
       // Head loading and drag influence control; body mass alone is not a deep-water head.
       const control=r.headWeight/Math.sqrt(Math.max(.7,(l.lengthCm||l.length/10||7)/7));
       max=r.headWeight===null?max:r.headWeight===0?1.2:clamp(1+control*1.2,1.5,30);min=0;
@@ -123,7 +161,7 @@
       const loading=l.cat==='vertical jig'?.9:l.cat==='blade bait'?.8:.65;
       max=Math.max(max,Math.min(30,(l.rig?l.rig.catalogWeight:l.weight)*loading));min=0;
     }
-    if(d>=min&&d<=max)return soft(l)?.88:.95;
+    if(d>=min&&d<=max)return .95;
     const gap=d<min?min-d:d-max,tolerance=soft(l)||metal(l)?1.8:/sinking/i.test(l.buoyancy)?1.1:.65;
     return clamp(.85*Math.exp(-gap/tolerance),.02,.85);
   };
@@ -136,6 +174,7 @@
     return dense?.98:.8;
   }
   function structure(l,inp){
+    if(l.cat==='spybait'&&['rock','harbor','drop'].includes(inp.structure))return .88;
     if(inp.structure!=='weed')return structureFit(l,inp.structure);
     const risk=snagRisk(l,inp);
     return clamp(1-risk,.05,.95);
@@ -164,12 +203,14 @@
     if(l.lengthCm>=min&&l.lengthCm<=max)return .85+.15*Math.exp(-Math.pow((l.lengthCm-center)/width,2));
     return .85*Math.exp(-Math.abs(l.lengthCm-clamp(l.lengthCm,min,max))/Math.max(1.5,3*scale));
   }
+  const oldCategoryTargetBonus=categoryTargetBonus;
+  categoryTargetBonus=function(cat,target){return cat==='spybait'?({perch:.96,bass:.96,chub:.72,asp:.65,pike:.55,zander:.58,trout:.75}[target]??.5):oldCategoryTargetBonus(cat,target);};
   lureScore=function(l,inp,env){
     env=env||computeEnvironment(inp);
     const a=assess(l,inp,env),species=categoryTargetBonus(l.cat,inp.target),sf=lengthFit(l,inp),st=structure(l,inp),risk=snagRisk(l,inp);
     const reach=clamp(a.castRange.max/Math.max(1,inp.dropDistance),.05,1);
     const castFit=inp.dropDistance<=a.castRange.min?1:inp.dropDistance<=a.castRange.max?.55+.45*(a.castRange.max-inp.dropDistance)/(a.castRange.max-a.castRange.min):.3*reach;
-    const slow=inp.waterTemp<12||env.activity<45;
+    const slow=window.GardaTechniques?.approach(inp)==='patient'||inp.waterTemp<12||env.activity<45;
     const style=slow?(soft(l)?.95:l.finesse):.55*l.aggressive+.45*l.finesse;
     const technique=soft(l)&&window.GardaTechniques&&inp.rigStyle?window.GardaTechniques.suitability(l,inp):style;
     const visibility=visibilityFit(l,inp,env),wind=windLureFit({...l,weight:a.rig.totalWeight},inp,env);
@@ -252,7 +293,7 @@
     const candidates=window.GardaTechniques?window.GardaTechniques.candidates(base,{...inp,rigStyle:key||'auto'}):[base];
     return candidates.map(l=>({l,s:lureScore(l,inp,env)})).sort((a,b)=>Number(b.s.practical)-Number(a.s.practical)||b.s.total-a.s.total)[0]?.l||base;
   }
-  Object.assign(window.GardaSelector,{assess,rigFor,rigText,castRange,snagRisk,selectAlternatives,method,resolveProfile,bestPresentation});
+  Object.assign(window.GardaSelector,{assess,rigFor,rigText,castRange,autoHead,snagRisk,selectAlternatives,method,resolveProfile,bestPresentation});
   const oldMapCard=renderMapPointCard;
   renderMapPointCard=function(inp,env){return oldMapCard(inp,env).replace(/<div class="softbait-tip">[\s\S]*?<\/div>/g,'');};
   ['rodLength','lineDiameter','jigHead','rigHardware','softHook','weedDensity','bottomDepth'].forEach(id=>{

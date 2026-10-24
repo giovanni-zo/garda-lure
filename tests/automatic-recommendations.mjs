@@ -7,7 +7,7 @@ const result=vm.runInContext(`(()=>{
  const ranked=inp=>{const env=computeEnvironment(inp);return filteredLures(inp).map(l=>({l,s:lureScore(l,inp,env)})).sort((a,b)=>b.s.total-a.s.total);};
  const softRank=inp=>ranked(inp).filter(r=>r.l.rigTechnique);
  const all=filteredLures(base),checks={
-  catalogUnchanged:LURES.length===144,
+  catalogCoverage:LURES.length===150,
   hardAndSoftCompete:all.some(l=>!l.cat.includes('soft'))&&all.some(l=>l.rigTechnique==='dropshot'),
   independentOptions:new Set(filteredLures({...base,depth:1}).filter(l=>l.rigTechnique).map(l=>l.rigTechnique)).size===7,
   uniqueProfiles:new Set(all.map(l=>l.id)).size===all.length,
