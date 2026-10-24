@@ -51,7 +51,11 @@ readInputs=function(){
  return {...readEngine(),forage:$('forageChoice').value,fishActivity:$('fishActivity').value,autoRig:$('autoRig').checked,rigStyle:$('rigStyle').value};
 };
 const colorFor=(l,inp,env)=>window.GardaColors.pick(l,inp,env||computeEnvironment(inp));
-function art(l,inp,cls='',override=null){const c=override||colorFor(l,inp),filename=window.GardaColors.asset(l,c),filter=window.GardaColors.isNative(l,c,filename)?'none':'url(#'+window.GardaColors.filterId(c.key,l)+')';return `<div class="lure-art palette-${c.key} ${cls}"><img src="${window.GardaColors.image(l,c)}" style="filter:${filter}" alt="${safeText(l.family+' · '+c.label)}" loading="lazy" width="300" height="190"></div>`;}
+function art(l,inp,cls='',override=null){
+ const c=override||colorFor(l,inp),mounted=l.rigTechnique&&window.GardaRigArt.cover(l,inp,c);
+ const image=mounted||`<img src="${window.GardaColors.image(l,c)}" style="filter:${window.GardaColors.treatment(l,c)}" alt="${safeText(l.family+' · '+c.label)}" loading="lazy" width="300" height="190">`;
+ return `<div class="lure-art palette-${c.key} ${cls}">${image}</div>`;
+}
 function colorLabel(c){return `<span class="color-dot" style="--swatch:linear-gradient(135deg,${c.top} 0 48%,${c.belly} 48% 84%,${c.accent} 84%)">${c.label}</span>`;}
 function scoreBadge(s){return `<span class="score-badge ${s.total<45?'low':''}" aria-label="Compatibilità ${Math.round(s.total)} su 100"><strong>${Math.round(s.total)}</strong><small>/100</small></span>`;}
 let currentType=null,waterSource='stagionale';

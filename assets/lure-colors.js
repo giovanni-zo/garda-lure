@@ -8,7 +8,7 @@ const palettes={
  perch:{label:'Persico naturale',top:'#6f873c',belly:'#f5e8bf',accent:'#de8139',why:'Barre scure, ventre chiaro e pinne arancio per imitare piccoli persici.'},
  baitfish:{label:'Blu / argento · ventre bianco',top:'#285d9a',belly:'#f2f5f2',accent:'#dd883b',why:'Dorso blu, fianchi argento e pancia bianca: profilo del foraggio pelagico del Garda.'},
  ayu:{label:'Oliva / perla',top:'#84956a',belly:'#f4efdc',accent:'#c8a35d',why:'Dorso oliva discreto e ventre perla con acqua molto limpida e poco vento.'},
- goldfish:{label:'Oro / nero · gola arancio',top:'#bd9b48',belly:'#f6e5bd',accent:'#dd7831',why:'Dorso scuro e fianchi caldi, per rendere leggibile un pesciolino in acqua velata.'},
+ goldfish:{label:'Oro / dorso scuro',top:'#bd9b48',belly:'#f6e5bd',accent:'#dd7831',why:'Dorso scuro e fianchi oro, per rendere leggibile un pesciolino in acqua velata.'},
  pumpkin:{label:'Green pumpkin / ambra',top:'#697541',belly:'#c9b78a',accent:'#bb813b',why:'Oliva, ventre chiaro e dettagli ambrati tra sassi e vegetazione.'},
  craw:{label:'Marrone / chele arancio',top:'#856044',belly:'#d1b788',accent:'#d77d36',why:'Corpo marrone e chele arancio per una presentazione da gambero sul fondo.'},
  blackblue:{label:'Nero / blu',top:'#202b44',belly:'#3f5682',accent:'#7b9abd',why:'Profilo scuro con accenti blu quando luce o visibilità sono scarse.'},
@@ -48,7 +48,7 @@ function pick(l,inp,env){
   else if(inp.clarity>=9&&!windy)key='ayu';
   else key='baitfish';
   alternative=key==='baitfish'?(inp.structure==='weed'&&swimbait?'perch':'ayu'):key==='perch'?'baitfish':key==='ayu'?'baitfish':key==='firetiger'?'pearl':key==='goldfish'?'pearl':key==='blackblue'?'pearl':key==='pearl'?(stained||murky?'chartreuse':'baitfish'):'pearl';
-  reason=key==='perch'?(forage==='perch'?'Hai segnalato piccoli persici: partirei da questa livrea.':'Sul bordo dell’erba, nel limpido, il persico è una partenza naturale da confrontare col foraggio visibile.'):key==='baitfish'?'In acqua aperta o su sassi partirei da blu/argento e ventre bianco, coerente con agone e alborella.':key==='pearl'?'Con luce diffusa o più profondità partirei da fianchi perla, mantenendo un dorso a contrasto.':key==='goldfish'?'Per questo minnow in acqua velata sceglierei fianchi oro, dorso scuro e gola arancio.':key==='firetiger'?'Su una sagoma ampia nel torbido proverei barre scure, giallo-verde e arancio.':key==='ayu'?'Acqua molto limpida e calma: partirei da oliva/perla discreto.':night?'Con poca luce proverei una sagoma scura o un contrasto netto.':'Nel torbido partirei da bianco e chartreuse in zone distinte del corpo.';
+  reason=key==='perch'?(forage==='perch'?'Hai segnalato piccoli persici: partirei da questa livrea.':'Sul bordo dell’erba, nel limpido, il persico è una partenza naturale da confrontare col foraggio visibile.'):key==='baitfish'?'In acqua aperta o su sassi partirei da blu/argento e ventre bianco, coerente con agone e alborella.':key==='pearl'?'Con luce diffusa o più profondità partirei da fianchi perla, mantenendo un dorso a contrasto.':key==='goldfish'?'Per questo minnow in acqua velata sceglierei fianchi oro e dorso scuro.':key==='firetiger'?'Su una sagoma ampia nel torbido proverei barre scure, giallo-verde e arancio.':key==='ayu'?'Acqua molto limpida e calma: partirei da oliva/perla discreto.':night?'Con poca luce proverei una sagoma scura o un contrasto netto.':'Nel torbido partirei da bianco e chartreuse in zone distinte del corpo.';
  }
  const selected=palettes[key],alt=palettes[alternative];
  return {...selected,key,swatch:selected.top,why:reason,alternative:{...alt,key:alternative,swatch:alt.top}};
@@ -70,17 +70,37 @@ function isNative(l,c,filename){
 }
 function image(l,c){return './assets/illustrations/'+asset(l,c)+'.png'+'?v=9.1';}
 function filterId(key,l){return 'garda-color-'+key+(key==='blackblue'&&l?.cat.includes('soft')?'-body':'');}
+// One color treatment for cards, mounted covers and underwater guides.
+function treatment(l,c){return isNative(l,c,asset(l,c))?'none':'url(#'+filterId(c.key,l)+')';}
+function imageMarkup(l,c,attrs=''){
+ return `<image href="${image(l,c)}" ${attrs} preserveAspectRatio="xMidYMid meet" style="filter:${treatment(l,c)}" data-palette="${c.key}"/>`;
+}
+function filterMarkup(key,soft=false){
+ if(key==='silver')return `<filter id="${filterId(key)}" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="linear" slope="1.05"/><feFuncG type="linear" slope="1.06"/><feFuncB type="linear" slope="1.08"/></feComponentTransfer></filter>`;
+ const p=palettes[key],rgb=hex=>hex.slice(1).match(/../g).map(x=>parseInt(x,16)/255);
+ const top=rgb(p.top),belly=rgb(p.belly),mix=(a,b,t)=>a.map((x,i)=>x*(1-t)+b[i]*t),shade=(a,t)=>a.map(x=>x*t);
+ const dark=key==='dark'||key==='blackblue',metal=['silver','gold','copper'].includes(key);
+ // Chroma in either direction catches muted olive/brown as well as blue/green.
+ // Neutral steel, white skirt strands and dark hooks are left untouched.
+ const pairs=[[6,0,-6],[-6,0,6],[0,6,-6],[0,-6,6],[6,-6,0],[-6,6,0]];
+ let mask=pairs.map((v,i)=>`<feColorMatrix in="SourceGraphic" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 ${v.join(' ')} 0 0" result="chroma${i}"/>`).join('');
+ for(let i=1;i<6;i++)mask+=`<feComposite in="${i===1?'chroma0':'union'+(i-1)}" in2="chroma${i}" operator="arithmetic" k2="1" k3="1" result="union${i}"/>`;
+ mask+='<feComponentTransfer in="union5" result="colorMask"><feFuncA type="linear" slope="4" intercept="-3"/></feComponentTransfer>';
+ if(dark)mask='<feComposite in="SourceAlpha" in2="SourceAlpha" operator="in" result="colorMask"/>';
+ if(metal)mask='<feColorMatrix in="SourceGraphic" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .2126 .7152 .0722 0 0" result="brightness"/><feComponentTransfer in="brightness" result="colorMask"><feFuncA type="table" tableValues="0 0 .15 .9 1"/></feComponentTransfer>';
+ if(!dark&&!metal)mask+='<feColorMatrix in="SourceGraphic" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 5 -5 0 0 -.35" result="warmAccent"/><feComposite in="colorMask" in2="warmAccent" operator="out" result="colorMask"/>';
+ let stops;
+ if(dark)stops=[shade(top,.35),shade(top,.8),top,mix(top,belly,.65),belly];
+ else if(metal)stops=[[.04,.055,.065],shade(top,.4),shade(top,.8),mix(top,belly,.45),belly];
+ else if(key==='goldfish')stops=[shade(top,.12),shade(top,.16),shade(top,.2),shade(top,.35),top,shade(belly,.8),shade(belly,.9),shade(belly,.96),belly];
+ else stops=[shade(top,.12),shade(top,.4),shade(top,.7),top,mix(top,belly,.65),shade(belly,.8),shade(belly,.9),shade(belly,.96),belly];
+ const channels=['R','G','B'].map((channel,i)=>`<feFunc${channel} type="table" tableValues="${stops.map(x=>x[i].toFixed(4)).join(' ')}"/>`).join('');
+ return `<filter id="${filterId(key,soft?{cat:'soft'}:null)}" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">${mask}<feComposite in="colorMask" in2="SourceAlpha" operator="in" result="mask"/><feColorMatrix in="SourceGraphic" type="saturate" values="0"/><feComponentTransfer result="paint">${channels}</feComponentTransfer><feComposite in="paint" in2="mask" operator="in" result="repainted"/><feComposite in="SourceGraphic" in2="mask" operator="out" result="unchanged"/><feMerge><feMergeNode in="unchanged"/><feMergeNode in="repainted"/></feMerge></filter>`;
+}
 function installFilters(){
  if(!document.createElementNS||document.getElementById('gardaColorFilters'))return;
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.id='gardaColorFilters';svg.setAttribute('aria-hidden','true');svg.setAttribute('width','0');svg.setAttribute('height','0');svg.style.position='absolute';svg.style.pointerEvents='none';
- const rgb=hex=>hex.replace('#','').match(/../g).map(x=>parseInt(x,16)/255);
- svg.innerHTML='<defs>'+Object.entries(palettes).map(([key,p])=>{
-  if(key==='silver')return `<filter id="${filterId(key)}" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="linear" slope="1.05"/><feFuncG type="linear" slope="1.06"/><feFuncB type="linear" slope="1.08"/></feComponentTransfer></filter>`;
-  const [r,g,b]=rgb(p.top),metal=['gold','copper'].includes(key),all=key==='dark';
-  const paint=[r*.32,r*.58,r*.10,0,r*.38,g*.32,g*.58,g*.10,0,g*.38,b*.32,b*.58,b*.10,0,b*.38,0,0,0,1,0].join(' ');
-  const mask=all?'<feComposite in="SourceAlpha" in2="SourceAlpha" operator="in" result="mask"/>':metal?'<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .2126 .7152 .0722 0 0" result="rawmask"/><feComponentTransfer in="rawmask" result="mask"><feFuncA type="table" tableValues="0 0 .65 1"/></feComponentTransfer>':'<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -2 4 -2 0 0" result="greens"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -2 -2 4 0 0" result="blues"/><feComposite in="greens" in2="blues" operator="arithmetic" k2="1" k3="1" result="rawmask"/><feComponentTransfer in="rawmask" result="mask"><feFuncA type="table" tableValues="0 0 .85 1"/></feComponentTransfer>';
-  return `<filter id="${filterId(key)}" x="-3%" y="-3%" width="106%" height="106%" color-interpolation-filters="sRGB">${mask}<feComposite in="mask" in2="SourceAlpha" operator="in" result="limitedmask"/><feColorMatrix in="SourceGraphic" type="matrix" values="${paint}" result="paint"/><feComposite in="paint" in2="limitedmask" operator="in" result="repainted"/><feComposite in="SourceGraphic" in2="limitedmask" operator="out" result="unchanged"/><feMerge><feMergeNode in="unchanged"/><feMergeNode in="repainted"/></feMerge></filter>`;
- }).join('')+'<filter id="garda-color-blackblue-body" color-interpolation-filters="sRGB"><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncR type="linear" slope=".18" intercept=".06"/><feFuncG type="linear" slope=".27" intercept=".08"/><feFuncB type="linear" slope=".43" intercept=".14"/></feComponentTransfer></filter></defs>';document.body.appendChild(svg);
+ svg.innerHTML='<defs>'+Object.keys(palettes).map(key=>filterMarkup(key)).join('')+filterMarkup('blackblue',true)+'</defs>';document.body.appendChild(svg);
 }
-window.GardaColors={palettes,pick,asset,image,isNative,filterId,installFilters};
+window.GardaColors={palettes,pick,asset,image,isNative,filterId,treatment,imageMarkup,filterMarkup,installFilters};
 })();

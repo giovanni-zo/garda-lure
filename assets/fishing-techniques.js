@@ -175,8 +175,7 @@ function geometry(plan,phase){
 }
 function diagram(l,inp,env,plan,phase){
  const g=geometry(plan,phase),s=plan.steps[phase],uid='fishing-'+l.id+'-'+phase;
- const c=window.GardaColors.pick(l,inp,env),asset=window.GardaColors.asset(l,c),native=window.GardaColors.isNative?.(l,c,asset);
- const filter=native?'none':window.GardaColors.filterId?.(c.key,l)?'url(#'+window.GardaColors.filterId(c.key,l)+')':'none';
+ const c=window.GardaColors.pick(l,inp,env);
  const surface=s.action.includes('surface')||s.action==='pop',bottom=inp.structure==='sand'?'#baa67b':'#8d9a95';
  const arrow=d=>`<path d="${d}" fill="none" stroke="#fff8" stroke-width="8" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#ef9a40" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#${uid}-arrow)"/>`;
  let motion='';
@@ -194,7 +193,7 @@ function diagram(l,inp,env,plan,phase){
  else motion=arrow(`M87 ${surface?47:105} L147 ${surface?47:105}`);
  const weeds=inp.structure==='weed'?'<g fill="#438d69"><path d="M48 174 Q25 142 40 117 Q36 150 55 174Z"/><path d="M58 176 Q48 117 65 91 Q58 136 67 175Z"/><path d="M72 174 Q67 137 87 111 Q78 146 81 174Z"/></g>':'';
  const rocks=inp.structure==='sand'?'':'<g><path d="M19 180 L33 148 L65 151 L85 180Z" fill="#a9b2a3"/><path d="M33 148 L51 170 L65 151Z" fill="#d5dac9"/><path d="M51 170 L85 180 L65 151Z" fill="#7f958b"/><path d="M257 183 L280 154 L304 165 L326 186Z" fill="#b8c0ac"/><path d="M280 154 L287 183 L304 165Z" fill="#8ba697"/></g>';
- const softImage=(x,y,h)=>{const img=`<image href="${window.GardaColors.image(l,c)}" x="${x}" y="${y}" width="116" height="${h}" preserveAspectRatio="xMidYMid meet" style="filter:${filter}"/>`;return l.cat==='soft creature'?`<g data-rig-entry="tail" transform="translate(${2*(x+58)} 0) scale(-1 1)">${img}</g>`:img;};
+ const softImage=(x,y,h)=>{const img=window.GardaColors.imageMarkup(l,c,`x="${x}" y="${y}" width="116" height="${h}"`);return l.cat==='soft creature'?`<g data-rig-entry="tail" transform="translate(${2*(x+58)} 0) scale(-1 1)">${img}</g>`:img;};
  let lure=softImage(g.x-62,g.y-25,56);
  if(g.mount==='ned')lure=`<g transform="rotate(78 202 165)">${softImage(86,138,50)}</g>`;
  let rig='';
